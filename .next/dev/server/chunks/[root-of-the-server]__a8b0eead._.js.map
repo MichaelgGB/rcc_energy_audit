@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 46, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/mike5/Desktop/energy_audit/app/api/audits/analysis/route.ts"],"sourcesContent":["import { NextResponse } from \"next/server\"\n\nexport async function GET() {\n  return NextResponse.json({\n    labComparison: [\n      { location: \"Lab A\", totalKwh: 150 },\n      { location: \"Lab B\", totalKwh: 120 },\n      { location: \"Lab C\", totalKwh: 80 },\n    ],\n    deviceClassBreakdown: [\n      { device_class: \"Lighting\", totalKwh: 100 },\n      { device_class: \"Servers\", totalKwh: 180 },\n      { device_class: \"Workstations\", totalKwh: 70 },\n    ],\n  })\n}\n"],"names":[],"mappings":";;;;AAAA;;AAEO,eAAe;IACpB,OAAO,gJAAY,CAAC,IAAI,CAAC;QACvB,eAAe;YACb;gBAAE,UAAU;gBAAS,UAAU;YAAI;YACnC;gBAAE,UAAU;gBAAS,UAAU;YAAI;YACnC;gBAAE,UAAU;gBAAS,UAAU;YAAG;SACnC;QACD,sBAAsB;YACpB;gBAAE,cAAc;gBAAY,UAAU;YAAI;YAC1C;gBAAE,cAAc;gBAAW,UAAU;YAAI;YACzC;gBAAE,cAAc;gBAAgB,UAAU;YAAG;SAC9C;IACH;AACF"}}]
+}

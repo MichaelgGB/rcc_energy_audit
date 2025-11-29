@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 46, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/mike5/Desktop/energy_audit/app/api/audits/stats/route.ts"],"sourcesContent":["import { NextResponse } from \"next/server\"\n\nexport async function GET() {\n  return NextResponse.json({\n    totalAudits: 1,\n    totalDevices: 20,\n    totalDailyKwh: 350,\n  })\n}\n"],"names":[],"mappings":";;;;AAAA;;AAEO,eAAe;IACpB,OAAO,gJAAY,CAAC,IAAI,CAAC;QACvB,aAAa;QACb,cAAc;QACd,eAAe;IACjB;AACF"}}]
+}

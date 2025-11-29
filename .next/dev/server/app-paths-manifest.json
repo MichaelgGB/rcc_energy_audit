@@ -1,0 +1,10 @@
+{
+  "/api/audits/analysis/route": "app/api/audits/analysis/route.js",
+  "/api/audits/stats/route": "app/api/audits/stats/route.js",
+  "/api/metrics/analysis/route": "app/api/metrics/analysis/route.js",
+  "/api/metrics/ingest/route": "app/api/metrics/ingest/route.js",
+  "/api/metrics/stats/route": "app/api/metrics/stats/route.js",
+  "/api/recommendations/compute/route": "app/api/recommendations/compute/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/recommendations/page": "app/recommendations/page.js"
+}
