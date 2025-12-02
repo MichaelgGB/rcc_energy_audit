@@ -470,13 +470,57 @@ function AuditForm({ onSuccess }) {
                                             lineNumber: 115,
                                             columnNumber: 15
                                         }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
-                                            type: "text",
-                                            placeholder: "e.g., Lab Building A",
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
                                             value: location,
                                             onChange: (e)=>setLocation(e.target.value),
-                                            className: "bg-background border-border"
-                                        }, void 0, false, {
+                                            className: "w-full px-3 py-2 bg-background border border-border rounded text-sm",
+                                            required: true,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    value: "",
+                                                    children: "Select a location"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/audit/audit-form.tsx",
+                                                    lineNumber: 122,
+                                                    columnNumber: 15
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    children: "Undergraduate Lab"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/audit/audit-form.tsx",
+                                                    lineNumber: 123,
+                                                    columnNumber: 15
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    children: "Masters Lab"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/audit/audit-form.tsx",
+                                                    lineNumber: 124,
+                                                    columnNumber: 15
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    children: "PhD Lab"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/audit/audit-form.tsx",
+                                                    lineNumber: 125,
+                                                    columnNumber: 15
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    children: "C4D Lab"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/audit/audit-form.tsx",
+                                                    lineNumber: 126,
+                                                    columnNumber: 15
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    children: "Other"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/audit/audit-form.tsx",
+                                                    lineNumber: 127,
+                                                    columnNumber: 15
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
                                             fileName: "[project]/components/audit/audit-form.tsx",
                                             lineNumber: 116,
                                             columnNumber: 15
@@ -504,7 +548,7 @@ function AuditForm({ onSuccess }) {
                                             children: "Devices"
                                         }, void 0, false, {
                                             fileName: "[project]/components/audit/audit-form.tsx",
-                                            lineNumber: 128,
+                                            lineNumber: 134,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -518,20 +562,20 @@ function AuditForm({ onSuccess }) {
                                                     className: "w-4 h-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/audit/audit-form.tsx",
-                                                    lineNumber: 136,
+                                                    lineNumber: 142,
                                                     columnNumber: 17
                                                 }, this),
                                                 " Add Device"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/audit/audit-form.tsx",
-                                            lineNumber: 129,
+                                            lineNumber: 135,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/audit/audit-form.tsx",
-                                    lineNumber: 127,
+                                    lineNumber: 133,
                                     columnNumber: 13
                                 }, this),
                                 devices.map((device, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -547,7 +591,7 @@ function AuditForm({ onSuccess }) {
                                                                 children: "Class"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 144,
+                                                                lineNumber: 150,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -559,47 +603,47 @@ function AuditForm({ onSuccess }) {
                                                                         children: "Lighting"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                                        lineNumber: 150,
+                                                                        lineNumber: 156,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                                                         children: "Servers"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                                        lineNumber: 151,
+                                                                        lineNumber: 157,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                                                         children: "Workstations"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                                        lineNumber: 152,
+                                                                        lineNumber: 158,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                                                         children: "HVAC"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                                        lineNumber: 153,
+                                                                        lineNumber: 159,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                                                         children: "Other"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                                        lineNumber: 154,
+                                                                        lineNumber: 160,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 145,
+                                                                lineNumber: 151,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                        lineNumber: 143,
+                                                        lineNumber: 149,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -609,7 +653,7 @@ function AuditForm({ onSuccess }) {
                                                                 children: "Description"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 158,
+                                                                lineNumber: 164,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -619,19 +663,19 @@ function AuditForm({ onSuccess }) {
                                                                 className: "bg-card border-border h-10"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 159,
+                                                                lineNumber: 165,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                        lineNumber: 157,
+                                                        lineNumber: 163,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                lineNumber: 142,
+                                                lineNumber: 148,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -644,7 +688,7 @@ function AuditForm({ onSuccess }) {
                                                                 children: "Power (W)"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 170,
+                                                                lineNumber: 176,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -655,13 +699,13 @@ function AuditForm({ onSuccess }) {
                                                                 required: true
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 171,
+                                                                lineNumber: 177,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                        lineNumber: 169,
+                                                        lineNumber: 175,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -671,7 +715,7 @@ function AuditForm({ onSuccess }) {
                                                                 children: "Quantity"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 180,
+                                                                lineNumber: 186,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -682,13 +726,13 @@ function AuditForm({ onSuccess }) {
                                                                 className: "bg-card border-border h-10"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 181,
+                                                                lineNumber: 187,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                        lineNumber: 179,
+                                                        lineNumber: 185,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -698,7 +742,7 @@ function AuditForm({ onSuccess }) {
                                                                 children: "Hours/Day"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 190,
+                                                                lineNumber: 196,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -709,19 +753,19 @@ function AuditForm({ onSuccess }) {
                                                                 className: "bg-card border-border h-10"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                                lineNumber: 191,
+                                                                lineNumber: 197,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                                        lineNumber: 189,
+                                                        lineNumber: 195,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                lineNumber: 168,
+                                                lineNumber: 174,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -737,31 +781,31 @@ function AuditForm({ onSuccess }) {
                                                             className: "w-4 h-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/audit/audit-form.tsx",
-                                                            lineNumber: 209,
+                                                            lineNumber: 215,
                                                             columnNumber: 21
                                                         }, this),
                                                         " Remove"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/audit/audit-form.tsx",
-                                                    lineNumber: 202,
+                                                    lineNumber: 208,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/audit/audit-form.tsx",
-                                                lineNumber: 201,
+                                                lineNumber: 207,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, index, true, {
                                         fileName: "[project]/components/audit/audit-form.tsx",
-                                        lineNumber: 141,
+                                        lineNumber: 147,
                                         columnNumber: 15
                                     }, this))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/audit/audit-form.tsx",
-                            lineNumber: 126,
+                            lineNumber: 132,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -771,7 +815,7 @@ function AuditForm({ onSuccess }) {
                             children: loading ? "Saving..." : "Save Audit"
                         }, void 0, false, {
                             fileName: "[project]/components/audit/audit-form.tsx",
-                            lineNumber: 216,
+                            lineNumber: 222,
                             columnNumber: 11
                         }, this)
                     ]

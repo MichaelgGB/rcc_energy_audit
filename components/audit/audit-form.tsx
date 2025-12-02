@@ -113,13 +113,19 @@ export default function AuditForm({ onSuccess }: AuditFormProps) {
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Location</label>
-              <Input
-                type="text"
-                placeholder="e.g., Lab Building A"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="bg-background border-border"
-              />
+              <select
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full px-3 py-2 bg-background border border-border rounded text-sm"
+              required
+              >
+              <option value="">Select a location</option>
+              <option>Undergraduate Lab</option>
+              <option>Masters Lab</option>
+              <option>PhD Lab</option>
+              <option>C4D Lab</option>
+              <option>Other</option>
+              </select>
             </div>
           </div>
 
