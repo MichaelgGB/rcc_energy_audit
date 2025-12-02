@@ -1,11 +1,14 @@
 {
   "/api/audits/analysis/route": "app/api/audits/analysis/route.js",
+  "/api/audits/list/route": "app/api/audits/list/route.js",
   "/api/audits/stats/route": "app/api/audits/stats/route.js",
   "/api/metrics/stats/route": "app/api/metrics/stats/route.js",
   "/api/predictions/analyze/route": "app/api/predictions/analyze/route.js",
   "/api/recommendations/compute/route": "app/api/recommendations/compute/route.js",
+  "/audit/page": "app/audit/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/page": "app/page.js",
   "/predictions/page": "app/predictions/page.js",
+  "/recommendations/page": "app/recommendations/page.js",
   "/simulations/page": "app/simulations/page.js"
 }

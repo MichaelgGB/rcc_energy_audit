@@ -11,19 +11,9 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Zap className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">UON Campus Labs Energy Audit</h1>
+            <h1 className="text-2xl font-bold text-foreground">Energy Audit</h1>
           </div>
-          <nav className="flex gap-4">
-            <Link href="/audit">
-              <Button variant="ghost">Audit</Button>
-            </Link>
-            <Link href="/simulations">
-              <Button variant="ghost">Simulations</Button>
-            </Link>
-            <Link href="/dashboard">
-              <Button>Dashboard</Button>
-            </Link>
-          </nav>
+          {/* Navigation is now handled by sidebar */}
         </div>
       </header>
 

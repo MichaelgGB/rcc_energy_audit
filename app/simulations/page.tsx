@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 import { 
   AlertCircle, 
@@ -225,7 +226,9 @@ export default function SimulationsPage() {
             <h1 className="text-2xl font-bold text-slate-900">RC Energy Audit</h1>
           </div>
           <nav className="flex gap-4">
-            <Button variant="ghost">Dashboard</Button>
+            <Link href="/dashboard">
+              <Button variant="default" className="bg-blue-600 hover:bg-blue-700">Dashboard</Button>
+            </Link>
             <Button variant="default" className="bg-blue-600 hover:bg-blue-700">Simulations</Button>
           </nav>
         </div>
@@ -242,9 +245,9 @@ export default function SimulationsPage() {
 
         {/* Settings Panel */}
         <Card className="mb-8 bg-white shadow-sm border-slate-200">
-          <CardHeader className="border-b border-slate-200 pb-4">
-            <CardTitle className="text-lg font-medium">Environmental & Grid Parameters</CardTitle>
-          </CardHeader>
+            <CardHeader className="border-b border-slate-200 pb-4">
+            <CardTitle className="text-lg font-medium text-black">Environmental & Grid Parameters</CardTitle>
+            </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
