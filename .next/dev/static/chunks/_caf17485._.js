@@ -906,7 +906,7 @@ function AuditForm({ onSuccess }) {
         columnNumber: 5
     }, this);
 }
-_s(AuditForm, "XDy7aaOSBINeieL5UkEVj4GaNUA=");
+_s(AuditForm, "KFPbcx34/ni+mwhsrjVO3MDqhq4=");
 _c = AuditForm;
 var _c;
 __turbopack_context__.k.register(_c, "AuditForm");
@@ -1103,7 +1103,7 @@ function AuditList() {
         columnNumber: 5
     }, this);
 }
-_s(AuditList, "aIk30knUw/yyW4dQ3n7x2rIszPY=", false, function() {
+_s(AuditList, "/fvgh3lTJnplJJNDDzrOXFe1T0Y=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"]
     ];
@@ -1252,7 +1252,7 @@ function TelemetryUpload() {
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
                                     value: csvData,
                                     onChange: (e)=>setCsvData(e.target.value),
-                                    placeholder: "2025-01-15T10:30:00Z,LAB-PC-01,45.2,62.1,1024000,250.5 2025-01-15T10:31:00Z,LAB-PC-01,48.1,63.2,1052000,260.3 2025-01-15T10:32:00Z,LAB-PC-02,12.5,34.2,512000,85.2",
+                                    placeholder: "2025-01-15T10:30:00Z,LAB-PC-01,45.2,62.1,1024000,250.5   2025-01-15T10:31:00Z,LAB-PC-01,48.1,63.2,1052000,260.3   2025-01-15T10:32:00Z,LAB-PC-02,12.5,34.2,512000,85.2",
                                     className: "w-full h-40 bg-card border border-border rounded px-3 py-2 text-sm font-mono"
                                 }, void 0, false, {
                                     fileName: "[project]/components/audit/telemetry-upload.tsx",

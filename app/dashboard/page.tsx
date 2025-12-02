@@ -22,6 +22,12 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold">Energy Dashboard</h1>
             <p className="text-muted mt-2">Real-time monitoring and analysis</p>
           </div>
+          <Link href="/predictions">
+            <Button className="gap-2">
+              <TrendingDown className="w-4 h-4" />
+              View Predictions
+            </Button>
+          </Link>
           <Link href="/recommendations">
             <Button className="gap-2">
               <TrendingDown className="w-4 h-4" />
