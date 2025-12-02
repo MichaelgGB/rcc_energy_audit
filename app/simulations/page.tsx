@@ -225,12 +225,6 @@ export default function SimulationsPage() {
             <Zap className="w-8 h-8 text-blue-600" />
             <h1 className="text-2xl font-bold text-slate-900">RC Energy Audit</h1>
           </div>
-          <nav className="flex gap-4">
-            <Link href="/dashboard">
-              <Button variant="default" className="bg-blue-600 hover:bg-blue-700">Dashboard</Button>
-            </Link>
-            <Button variant="default" className="bg-blue-600 hover:bg-blue-700">Simulations</Button>
-          </nav>
         </div>
       </header>
 

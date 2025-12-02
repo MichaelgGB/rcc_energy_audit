@@ -174,9 +174,6 @@ export default function PredictionsDashboard() {
               <Activity className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold">Power Predictions & Anomaly Detection</h1>
             </div>
-            <Button variant="outline" onClick={() => router.push('/dashboard')}>
-              Back to Dashboard
-            </Button>
           </div>
           <p className="text-muted-foreground">
             Predictive analytics and real-time anomaly detection for energy consumption

@@ -110,9 +110,6 @@ export default function RecommendationsPage() {
               <Leaf className="w-8 h-8 text-green-600" />
               <h1 className="text-3xl font-bold">Energy & Environmental Impact</h1>
             </div>
-            <Button variant="outline" onClick={() => window.location.href = '/dashboard'}>
-              Back to Dashboard
-            </Button>
           </div>
           <p className="text-muted">
             Energy optimization strategies based on Responsible Computing (RC) principles
