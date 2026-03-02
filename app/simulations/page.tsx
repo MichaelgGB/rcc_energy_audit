@@ -25,6 +25,9 @@ export default function SimulationsPage() {
   const [carbonFactor, setCarbonFactor] = useState<number>(0.4)
   const [degradationRate, setDegradationRate] = useState<number>(2)
   const [includeUncertainty, setIncludeUncertainty] = useState<boolean>(true)
+  const [discountRate, setDiscountRate] = useState<number>(5)
+  const [inflationRate, setInflationRate] = useState<number>(3)
+  const [salvageValuePercent, setSalvageValuePercent] = useState<number>(10)
 
   // Device A (Existing - High Contrast: Red/Warm)
   const [deviceAName, setDeviceAName] = useState("Existing Device")
@@ -93,6 +96,9 @@ export default function SimulationsPage() {
       carbonFactor,
       degradationRate,
       includeUncertainty,
+      discountRate: discountRate / 100, // Convert percentage to decimal
+      inflationRate: inflationRate / 100, // Convert percentage to decimal
+      salvageValuePercent: salvageValuePercent / 100, // Convert percentage to decimal
     }
 
     try {
@@ -146,6 +152,10 @@ export default function SimulationsPage() {
     const treesEquivalent = apiResult.savings.carbonPerYear / 21
     const yearlyWaterSavings = apiResult.savings.energyPerYear * 3
 
+    // Calculate actual annual costs (energy + maintenance)
+    const deviceAAnnualCost = Math.round((apiResult.energyA.annualKwh * payload.tariff) + deviceA.maintenanceCost)
+    const deviceBAnnualCost = Math.round((apiResult.energyB.annualKwh * payload.tariff) + deviceB.maintenanceCost)
+
     return {
       energy: {
         deviceAKwh: Math.round(apiResult.energyA.annualKwh),
@@ -153,8 +163,8 @@ export default function SimulationsPage() {
         savingsKwh: apiResult.savings.energyPerYear,
       },
       financial: {
-        deviceACost: apiResult.TCOA,
-        deviceBCost: apiResult.TCOB,
+        deviceACost: deviceAAnnualCost,
+        deviceBCost: deviceBAnnualCost,
         savingsKes: apiResult.savings.costPerYear,
       },
       environmentalImpact: {
@@ -262,6 +272,50 @@ export default function SimulationsPage() {
                   />
                   <span className="text-sm text-muted-foreground">Include Uncertainty Analysis</span>
                 </label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-8 bg-card border-border">
+          <CardHeader className="border-b border-border pb-4">
+            <CardTitle className="text-lg font-medium">Financial Parameters (TCO)</CardTitle>
+            <CardDescription className="text-xs">Configure time value of money and cost projections</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">Discount Rate (%)</label>
+                <Input
+                  type="number"
+                  value={discountRate}
+                  onChange={(e) => setDiscountRate(Number(e.target.value))}
+                  className="bg-background"
+                  step="0.1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">For NPV calculation (default: 5%)</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">Inflation Rate (%)</label>
+                <Input
+                  type="number"
+                  value={inflationRate}
+                  onChange={(e) => setInflationRate(Number(e.target.value))}
+                  className="bg-background"
+                  step="0.1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Energy cost increase (default: 3%)</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">Salvage Value (%)</label>
+                <Input
+                  type="number"
+                  value={salvageValuePercent}
+                  onChange={(e) => setSalvageValuePercent(Number(e.target.value))}
+                  className="bg-background"
+                  step="1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">End-of-life resale value (default: 10%)</p>
               </div>
             </div>
           </CardContent>
@@ -541,8 +595,8 @@ export default function SimulationsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-primary">
-                    {(simulationState.results.rcInsights.environmentalImpact.waterLitersPerYear / 1000).toFixed(1)}{" "}
-                    <span className="text-lg">m³</span>
+                    {simulationState.results.rcInsights.environmentalImpact.waterLitersPerYear.toFixed(1)}{" "}
+                    <span className="text-lg">Litres</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">per year</p>
                 </CardContent>
