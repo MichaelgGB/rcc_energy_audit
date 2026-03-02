@@ -7,6 +7,172 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 
+export interface RecommendationOutput {
+  decision: "REPLACE" | "CAUTION" | "KEEP" | "INSUFFICIENT_DATA";
+  confidence: "low" | "medium" | "high";
+  scores: {
+    totalScore: number;
+    financialScore: number;
+    lifecycleScore: number;
+    energyScore: number;
+    carbonScore: number;
+  };
+  reasons: string[];
+}
+
+const THRESHOLDS = {
+  MINIMAL_SAVINGS: 5000,
+  LOW_CONFIDENCE: 40
+}
+
+function clamp(value: number, min = 0, max = 1) {
+  return Math.min(max, Math.max(min, value))
+}
+
+function normalize(value: number, max: number) {
+  if (max === 0) return 0
+  return clamp(value / max)
+}
+
+function inverseNormalize(value: number, max: number) {
+  if (max === 0) return 0
+  return clamp(1 - value / max)
+}
+
+export function generateComprehensiveRecommendations(
+  deviceA: any,
+  deviceB: any,
+  apiResult: any,
+  payload: any,
+  optimizationWeight: number = 100 // 0 to 100
+): RecommendationOutput {
+  const tcoSavings = apiResult.TCOA - apiResult.TCOB;
+  const tcoSavingsPercent = apiResult.TCOA !== 0 ? (tcoSavings / apiResult.TCOA) * 100 : 0;
+
+  const energyADailyKwh = apiResult.energyA.annualKwh;
+  const efficiencyScore = energyADailyKwh > 0 ? Math.min(
+    100,
+    Math.max(0, Math.round(((energyADailyKwh - apiResult.energyB.annualKwh) / energyADailyKwh) * 100))
+  ) : 0;
+
+  let confidence: "low" | "medium" | "high" = "medium";
+  if (apiResult.uncertaintyScore >= 70) confidence = "high";
+  else if (apiResult.uncertaintyScore >= 50) confidence = "medium";
+  else confidence = "low";
+
+  // Calculate scores first so they are always available
+  const lifecycleScore = clamp(deviceA.age / deviceA.lifespan);
+
+  let financialScore = clamp(
+    0.5 * normalize(Math.max(tcoSavings, 0), apiResult.TCOA) +
+    0.3 * inverseNormalize(apiResult.breakEvenMonths, deviceB.lifespan * 12) +
+    0.2 * normalize(Math.max(apiResult.savings.costPerYear, 0), 50000)
+  );
+
+  // An efficiency score of 40% is considered "excellent", so we normalize against 40 instead of 100.
+  const energyScore = clamp(efficiencyScore / 40);
+  // 100kg CO2 savings per year is significant, so normalize against 100 instead of 200.
+  const carbonScore = clamp(Math.max(apiResult.savings.carbonPerYear, 0) / 100);
+
+  if (apiResult.uncertaintyScore < 60) {
+    financialScore *= 0.85;
+  }
+
+  const w = optimizationWeight / 100;
+
+  // If w=1 (Financial), financial is 80%, energy+carbon is 10%.
+  // If w=0 (Sustainability), financial is 10%, energy+carbon is 80%.
+  const weightFinancial = 0.10 + (0.70 * w);
+  const weightLifecycle = 0.10;
+  const weightEnergy = 0.50 - (0.45 * w);
+  const weightCarbon = 0.30 - (0.25 * w);
+
+  const totalScore =
+    (weightFinancial * financialScore) +
+    (weightLifecycle * lifecycleScore) +
+    (weightEnergy * energyScore) +
+    (weightCarbon * carbonScore);
+
+  let decision: "REPLACE" | "CAUTION" | "KEEP" | "INSUFFICIENT_DATA" = "KEEP";
+  if (totalScore >= 0.75) decision = "REPLACE";
+  else if (totalScore >= 0.55) decision = "CAUTION";
+
+  if (lifecycleScore > 0.85 && decision !== "KEEP") {
+    decision = "REPLACE";
+  }
+
+  const reasons: string[] = [];
+
+  // Data Quality Guardrail
+  if (apiResult.uncertaintyScore < THRESHOLDS.LOW_CONFIDENCE) {
+    decision = "INSUFFICIENT_DATA";
+    reasons.push("❌ Failed data quality guardrail: Confidence is too low to recommend replacement.");
+  } else {
+    // Financial Guardrails logic
+    const isFinanciallyUnviable =
+      apiResult.savings.costPerYear < -THRESHOLDS.MINIMAL_SAVINGS ||
+      apiResult.breakEvenMonths === -1 ||
+      apiResult.breakEvenMonths > deviceB.lifespan * 12 ||
+      (tcoSavings < 0 && Math.abs(tcoSavingsPercent) > 20);
+
+    // Only apply hard financial guardrails if sustainability is NOT the clear priority (e.g., slider > 30)
+    if (isFinanciallyUnviable) {
+      if (optimizationWeight > 30) {
+        decision = "KEEP";
+        if (apiResult.savings.costPerYear < -THRESHOLDS.MINIMAL_SAVINGS) reasons.push(`❌ Financial Guardrail: Annual costs increase by ${Math.abs(Math.round(apiResult.savings.costPerYear)).toLocaleString()} KSh.`);
+        else if (apiResult.breakEvenMonths === -1) reasons.push("❌ Financial Guardrail: This replacement will never break even.");
+        else if (apiResult.breakEvenMonths > deviceB.lifespan * 12) reasons.push(`❌ Financial Guardrail: Returns take longer than the device lifespan (${apiResult.breakEvenMonths} months).`);
+        else reasons.push(`❌ Financial Guardrail: Total Cost of Ownership is significantly higher (${Math.abs(Math.round(tcoSavingsPercent)).toLocaleString()}%).`);
+      } else {
+        reasons.push("⚠️ Financial Caution: Negative ROI, but recommending based on your strong sustainability preference.");
+      }
+    }
+  }
+
+  const scoresObj = { financialScore, lifecycleScore, energyScore, carbonScore };
+  const dominantKey = (Object.keys(scoresObj) as Array<keyof typeof scoresObj>).reduce((a, b) =>
+    scoresObj[a] > scoresObj[b] ? a : b
+  );
+
+  if (dominantKey === 'financialScore') reasons.push("💰 Primary driver: Strong Return on Investment and Total Cost of Ownership savings.");
+  else if (dominantKey === 'energyScore') reasons.push("🌍 Primary driver: Substantial energy efficiency improvements.");
+  else if (dominantKey === 'lifecycleScore') reasons.push("♻️ Primary driver: Current device is nearing end-of-life.");
+  else reasons.push("🌱 Primary driver: Significant carbon reduction and environmental benefits.");
+
+  if (efficiencyScore > 30) {
+    reasons.push("✅ Strong case for replacement based on Energy Efficiency.");
+  } else if (efficiencyScore > 15) {
+    reasons.push("⚠️ Moderate savings - consider replacement only if maintenance costs are high.");
+  } else {
+    reasons.push("ℹ️ Minimal energy savings - extend current device life to reduce e-waste.");
+  }
+
+  if (deviceA.age > 5) {
+    reasons.push("♻️ Device A is nearing end-of-life. Ensure certified e-waste recycling.");
+  }
+
+  if (deviceB.idlePower < deviceA.idlePower * 0.5) {
+    reasons.push("⚡ Proposed device has superior idle efficiency (Green Software Principle).");
+  }
+
+  if (apiResult.savings.costPerYear > 0 && deviceB.purchaseCost > apiResult.savings.costPerYear * 5) {
+    reasons.push("🕒 The payback period is relatively long (>5 years) compared to annual savings.");
+  }
+
+  return {
+    decision,
+    confidence,
+    scores: {
+      totalScore: Math.round(totalScore * 100) / 100,
+      financialScore: Math.round(financialScore * 100) / 100,
+      lifecycleScore: Math.round(lifecycleScore * 100) / 100,
+      energyScore: Math.round(energyScore * 100) / 100,
+      carbonScore: Math.round(carbonScore * 100) / 100
+    },
+    reasons
+  };
+}
+
 interface SimulationState {
   isRunning: boolean
   results: any | null
@@ -28,6 +194,7 @@ export default function SimulationsPage() {
   const [discountRate, setDiscountRate] = useState<number>(5)
   const [inflationRate, setInflationRate] = useState<number>(3)
   const [salvageValuePercent, setSalvageValuePercent] = useState<number>(10)
+  const [optimizationWeight, setOptimizationWeight] = useState<number>(100)
 
   // Device A (Existing - High Contrast: Red/Warm)
   const [deviceAName, setDeviceAName] = useState("Existing Device")
@@ -116,7 +283,7 @@ export default function SimulationsPage() {
       const backendData = await response.json();
 
       // Adapt backend data to frontend UI structure
-      const rcInsights = mapBackendToFrontendMetrics(backendData, payload);
+      const rcInsights = mapBackendToFrontendMetrics(backendData, payload, optimizationWeight);
 
       setSimulationState({
         isRunning: false,
@@ -132,15 +299,16 @@ export default function SimulationsPage() {
     }
   }
 
-  const mapBackendToFrontendMetrics = (apiResult: any, payload: any) => {
+  const mapBackendToFrontendMetrics = (apiResult: any, payload: any, optWeight: number) => {
     const deviceA = payload.deviceA;
     const deviceB = payload.deviceB;
 
     // We can extract what the backend calculated.
-    const efficiencyScore = Math.min(
+    const energyADailyKwh = apiResult.energyA.annualKwh;
+    const efficiencyScore = energyADailyKwh > 0 ? Math.min(
       100,
-      Math.max(0, Math.round(((apiResult.energyA.annualKwh - apiResult.energyB.annualKwh) / apiResult.energyA.annualKwh) * 100)),
-    )
+      Math.max(0, Math.round(((energyADailyKwh - apiResult.energyB.annualKwh) / energyADailyKwh) * 100))
+    ) : 0;
 
     // RC compliance level
     let complianceLevel: "poor" | "fair" | "good" | "excellent"
@@ -183,30 +351,8 @@ export default function SimulationsPage() {
         deviceB: apiResult.TCOB,
         breakEvenMonths: apiResult.breakEvenMonths
       },
-      recommendations: generateRecommendations(deviceA, deviceB, efficiencyScore, complianceLevel),
+      recommendations: generateComprehensiveRecommendations(deviceA, deviceB, apiResult, payload, optWeight),
     }
-  }
-
-  const generateRecommendations = (deviceA: any, deviceB: any, efficiencyScore: number, complianceLevel: string) => {
-    const recommendations: string[] = []
-
-    if (efficiencyScore > 30) {
-      recommendations.push("✅ Strong case for replacement based on Energy Efficiency.")
-    } else if (efficiencyScore > 15) {
-      recommendations.push("⚠️ Moderate savings - consider replacement only if maintenance costs are high.")
-    } else {
-      recommendations.push("ℹ️ Minimal energy savings - extend current device life to reduce e-waste.")
-    }
-
-    if (deviceA.age > 5) {
-      recommendations.push("♻️ Device A is nearing end-of-life. Ensure certified e-waste recycling.")
-    }
-
-    if (deviceB.idleWatts < deviceA.idleWatts * 0.5) {
-      recommendations.push("⚡ Device B has superior idle efficiency (Green Software Principle).")
-    }
-
-    return recommendations
   }
 
   return (
@@ -316,6 +462,26 @@ export default function SimulationsPage() {
                   step="1"
                 />
                 <p className="text-xs text-muted-foreground mt-1">End-of-life resale value (default: 10%)</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 flex justify-between">
+                  <span>Optimization Focus</span>
+                  <span>{optimizationWeight}% ROI</span>
+                </label>
+                <div className="pt-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={optimizationWeight}
+                    onChange={(e) => setOptimizationWeight(Number(e.target.value))}
+                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>Sustainability (0%)</span>
+                    <span>Financial (100%)</span>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -720,17 +886,40 @@ export default function SimulationsPage() {
             </Card>
 
             {/* Recommendations */}
-            {simulationState.results.rcInsights.recommendations.length > 0 && (
+            {simulationState.results.rcInsights.recommendations && (
               <Card className="bg-card border-border">
                 <CardHeader>
-                  <CardTitle className="text-lg">Recommendations</CardTitle>
+                  <CardTitle className="text-lg flex justify-between items-center">
+                    <span>Comprehensive Recommendation</span>
+                    <Badge variant="outline" className={
+                      simulationState.results.rcInsights.recommendations.decision === "REPLACE" ? "bg-primary text-primary-foreground border-primary" :
+                        simulationState.results.rcInsights.recommendations.decision === "CAUTION" ? "bg-amber-500/10 text-amber-500 border-amber-500/50" :
+                          "bg-muted text-muted-foreground"
+                    }>
+                      {simulationState.results.rcInsights.recommendations.decision}
+                    </Badge>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-3">
-                    {simulationState.results.rcInsights.recommendations.map((rec: string, idx: number) => (
+                  <div className="mb-6 flex gap-6 text-sm">
+                    <div className="bg-accent/10 px-3 py-2 rounded border border-accent/20">
+                      <strong className="text-accent">Score:</strong>{" "}
+                      <span className="text-lg font-bold">
+                        {simulationState.results.rcInsights.recommendations.scores.totalScore}
+                      </span>
+                    </div>
+                    <div className="bg-muted px-3 py-2 rounded border border-border">
+                      <strong className="text-muted-foreground">Confidence:</strong>{" "}
+                      <span className="uppercase font-semibold">
+                        {simulationState.results.rcInsights.recommendations.confidence}
+                      </span>
+                    </div>
+                  </div>
+                  <ul className="space-y-4">
+                    {simulationState.results.rcInsights.recommendations.reasons.map((rec: string, idx: number) => (
                       <li key={idx} className="flex items-start gap-3 text-sm">
                         <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                        <span>{rec}</span>
+                        <span className="leading-snug">{rec}</span>
                       </li>
                     ))}
                   </ul>
