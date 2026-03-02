@@ -124,7 +124,6 @@ export default function AuditForm({ onSuccess }: AuditFormProps) {
               <option>Masters Lab</option>
               <option>PhD Lab</option>
               <option>C4D Lab</option>
-              <option>Other</option>
               </select>
             </div>
           </div>

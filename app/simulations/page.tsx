@@ -52,29 +52,42 @@ export default function SimulationsPage() {
   const handleSimulationRun = async () => {
     setSimulationState({ isRunning: true, results: null, error: null })
 
-    const formData = {
+    const payload = {
       deviceA: {
         name: deviceAName,
+        deviceType: "unknown",
+        powerRating: deviceANormalWatts,
+        idlePower: deviceAIdleWatts,
+        normalPower: deviceANormalWatts,
+        peakPower: deviceAPeakWatts,
         age: deviceAAge,
-        idleWatts: deviceAIdleWatts,
-        normalWatts: deviceANormalWatts,
-        peakWatts: deviceAPeakWatts,
-        idleHours: deviceAIdleHours,
-        normalHours: deviceANormalHours,
-        peakHours: deviceAPeakHours,
+        purchaseCost: 0, // Assume 0 if already perfectly owned or unknown
+        lifespan: 10,  // Need a default lifespan for TCO calculation
         maintenanceCost: deviceAMaintenanceCost,
+        usage: {
+          idleHours: deviceAIdleHours,
+          normalHours: deviceANormalHours,
+          peakHours: deviceAPeakHours,
+        },
+        units: 1,
       },
       deviceB: {
         name: deviceBName,
+        deviceType: "unknown",
+        powerRating: deviceBNormalWatts,
+        idlePower: deviceBIdleWatts,
+        normalPower: deviceBNormalWatts,
+        peakPower: deviceBPeakWatts,
         age: deviceBAge,
-        idleWatts: deviceBIdleWatts,
-        normalWatts: deviceBNormalWatts,
-        peakWatts: deviceBPeakWatts,
-        idleHours: deviceBIdleHours,
-        normalHours: deviceBNormalHours,
-        peakHours: deviceBPeakHours,
-        maintenanceCost: deviceBMaintenanceCost,
         purchaseCost: deviceBPurchaseCost,
+        lifespan: 10,
+        maintenanceCost: deviceBMaintenanceCost,
+        usage: {
+          idleHours: deviceBIdleHours,
+          normalHours: deviceBNormalHours,
+          peakHours: deviceBPeakHours,
+        },
+        units: 1,
       },
       tariff,
       carbonFactor,
@@ -83,13 +96,21 @@ export default function SimulationsPage() {
     }
 
     try {
-      // In a real scenario, this calls the API. For this UI demo, we simulate the calculation locally
-      // to ensure the UI works without the backend.
+      const response = await fetch("/api/simulations/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-      // Simulating API delay
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Simulation calculation failed on server");
+      }
 
-      const rcInsights = calculateRCInsights(formData)
+      const backendData = await response.json();
+
+      // Adapt backend data to frontend UI structure
+      const rcInsights = mapBackendToFrontendMetrics(backendData, payload);
 
       setSimulationState({
         isRunning: false,
@@ -100,41 +121,19 @@ export default function SimulationsPage() {
       setSimulationState({
         isRunning: false,
         results: null,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : "Network or server error",
       })
     }
   }
 
-  const calculateRCInsights = (data: any) => {
-    const deviceA = data.deviceA
-    const deviceB = data.deviceB
+  const mapBackendToFrontendMetrics = (apiResult: any, payload: any) => {
+    const deviceA = payload.deviceA;
+    const deviceB = payload.deviceB;
 
-    // Calculate daily energy consumption (kWh)
-    const deviceADailyKwh =
-      (deviceA.idleWatts * deviceA.idleHours +
-        deviceA.normalWatts * deviceA.normalHours +
-        deviceA.peakWatts * deviceA.peakHours) /
-      1000
-
-    const deviceBDailyKwh =
-      (deviceB.idleWatts * deviceB.idleHours +
-        deviceB.normalWatts * deviceB.normalHours +
-        deviceB.peakWatts * deviceB.peakHours) /
-      1000
-
-    const yearlyKwhSavings = (deviceADailyKwh - deviceBDailyKwh) * 365
-    const yearlyCO2Savings = yearlyKwhSavings * data.carbonFactor
-
-    // Responsible Computing Metric: Water Usage Effectiveness (WUE) approximation
-    // Traditional power generation consumes water. approx 3L per kWh is a conservative global avg.
-    const yearlyWaterSavings = yearlyKwhSavings * 3
-
-    const treesEquivalent = yearlyCO2Savings / 21 // ~21 kg CO2 absorbed per tree per year
-
-    // Efficiency score (0-100)
+    // We can extract what the backend calculated.
     const efficiencyScore = Math.min(
       100,
-      Math.max(0, Math.round(((deviceADailyKwh - deviceBDailyKwh) / deviceADailyKwh) * 100)),
+      Math.max(0, Math.round(((apiResult.energyA.annualKwh - apiResult.energyB.annualKwh) / apiResult.energyA.annualKwh) * 100)),
     )
 
     // RC compliance level
@@ -144,31 +143,35 @@ export default function SimulationsPage() {
     else if (efficiencyScore >= 10) complianceLevel = "fair"
     else complianceLevel = "poor"
 
-    // Hardware lifecycle considerations (RC Principle: Longevity)
-    const deviceALifecycleScore = Math.max(0, 100 - deviceA.age * 15) // Degrades 15% per year
-    const deviceBLifecycleScore = 100
+    const treesEquivalent = apiResult.savings.carbonPerYear / 21
+    const yearlyWaterSavings = apiResult.savings.energyPerYear * 3
 
     return {
       energy: {
-        deviceAKwh: Math.round(deviceADailyKwh * 365),
-        deviceBKwh: Math.round(deviceBDailyKwh * 365),
-        savingsKwh: Math.round(yearlyKwhSavings * 100) / 100,
+        deviceAKwh: Math.round(apiResult.energyA.annualKwh),
+        deviceBKwh: Math.round(apiResult.energyB.annualKwh),
+        savingsKwh: apiResult.savings.energyPerYear,
       },
       financial: {
-        deviceACost: Math.round(deviceADailyKwh * 365 * data.tariff),
-        deviceBCost: Math.round(deviceBDailyKwh * 365 * data.tariff),
-        savingsKes: Math.round(yearlyKwhSavings * data.tariff * 100) / 100,
+        deviceACost: apiResult.TCOA,
+        deviceBCost: apiResult.TCOB,
+        savingsKes: apiResult.savings.costPerYear,
       },
       environmentalImpact: {
-        co2KgPerYear: Math.round(yearlyCO2Savings * 100) / 100,
+        co2KgPerYear: apiResult.savings.carbonPerYear,
         waterLitersPerYear: Math.round(yearlyWaterSavings * 100) / 100,
         treesEquivalent: Math.round(treesEquivalent * 10) / 10,
       },
       efficiencyScore,
       complianceLevel,
       lifecycleScores: {
-        deviceA: deviceALifecycleScore,
-        deviceB: deviceBLifecycleScore,
+        deviceA: Math.max(0, 100 - payload.deviceA.age * 15),
+        deviceB: 100,
+      },
+      tco: { // Used in UI later
+        deviceA: apiResult.TCOA,
+        deviceB: apiResult.TCOB,
+        breakEvenMonths: apiResult.breakEvenMonths
       },
       recommendations: generateRecommendations(deviceA, deviceB, efficiencyScore, complianceLevel),
     }
@@ -503,13 +506,12 @@ export default function SimulationsPage() {
                 <CardContent>
                   <div className="text-3xl font-bold">{simulationState.results.rcInsights.efficiencyScore}/100</div>
                   <Badge
-                    className={`mt-2 ${
-                      simulationState.results.rcInsights.complianceLevel === "excellent"
-                        ? "bg-accent"
-                        : simulationState.results.rcInsights.complianceLevel === "good"
-                          ? "bg-primary"
-                          : "bg-destructive/50"
-                    }`}
+                    className={`mt-2 ${simulationState.results.rcInsights.complianceLevel === "excellent"
+                      ? "bg-accent"
+                      : simulationState.results.rcInsights.complianceLevel === "good"
+                        ? "bg-primary"
+                        : "bg-destructive/50"
+                      }`}
                   >
                     {simulationState.results.rcInsights.complianceLevel.toUpperCase()}
                   </Badge>
@@ -562,10 +564,10 @@ export default function SimulationsPage() {
               </Card>
             </div>
 
-            {/* Energy Comparison */}
+            {/* Energy Comparison & TCO */}
             <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-lg">Energy Consumption Comparison</CardTitle>
+                <CardTitle className="text-lg">Energy Consumption & Total Cost of Ownership (10 Years)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-8">
@@ -586,7 +588,15 @@ export default function SimulationsPage() {
                         <p className="text-sm text-muted-foreground">
                           Annual Cost:{" "}
                           <span className="font-bold text-foreground">
-                            KSh {simulationState.results.rcInsights.financial.deviceACost}
+                            KSh {simulationState.results.rcInsights.financial.deviceACost.toLocaleString()}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="pt-2">
+                        <p className="text-sm text-muted-foreground">
+                          Total Cost of Ownership (10 Yrs):{" "}
+                          <span className="font-bold text-foreground">
+                            KSh {simulationState.results.rcInsights.tco.deviceA.toLocaleString()}
                           </span>
                         </p>
                       </div>
@@ -617,7 +627,15 @@ export default function SimulationsPage() {
                         <p className="text-sm text-muted-foreground">
                           Annual Cost:{" "}
                           <span className="font-bold text-accent">
-                            KSh {simulationState.results.rcInsights.financial.deviceBCost}
+                            KSh {simulationState.results.rcInsights.financial.deviceBCost.toLocaleString()}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="pt-2">
+                        <p className="text-sm text-muted-foreground">
+                          Total Cost of Ownership (10 Yrs):{" "}
+                          <span className="font-bold text-accent">
+                            KSh {simulationState.results.rcInsights.tco.deviceB.toLocaleString()}
                           </span>
                         </p>
                       </div>
@@ -625,14 +643,24 @@ export default function SimulationsPage() {
                   </div>
                 </div>
 
-                <div className="bg-accent/10 rounded p-4 border border-accent/30">
-                  <p className="text-sm font-semibold text-accent mb-2">Potential Savings</p>
-                  <p className="text-2xl font-bold text-accent">
-                    {simulationState.results.rcInsights.energy.savingsKwh} kWh/year
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    KSh {simulationState.results.rcInsights.financial.savingsKes.toFixed(0)}/year
-                  </p>
+                <div className="bg-accent/10 rounded p-4 border border-accent/30 flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-semibold text-accent mb-2">Potential Savings</p>
+                    <p className="text-2xl font-bold text-accent">
+                      {simulationState.results.rcInsights.energy.savingsKwh} kWh/year
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      KSh {simulationState.results.rcInsights.financial.savingsKes.toLocaleString()}/year
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-primary mb-2">ROI Break-Even</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {simulationState.results.rcInsights.tco.breakEvenMonths > 0
+                        ? `${simulationState.results.rcInsights.tco.breakEvenMonths} Months`
+                        : 'Immediate/N/A'}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
