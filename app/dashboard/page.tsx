@@ -62,8 +62,14 @@ export default function DashboardPage() {
             <CardContent>
               <div className="text-2xl font-bold">{auditLoading ? "..." : auditStats?.totalAudits || 0}</div>
               <p className="text-xs text-muted mt-1">audits recorded</p>
+              {!auditLoading && auditStats?.totalDailyKwh > 0 && (
+                <p className="text-xs text-primary mt-2 font-medium">
+                  {auditStats.totalDailyKwh.toFixed(1)} kWh/day total
+                </p>
+              )}
             </CardContent>
           </Card>
+
 
           <Card className="bg-card border-border">
             <CardHeader className="pb-3">
