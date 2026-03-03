@@ -62,14 +62,21 @@ export default function AuditList() {
               {expandedId === audit.audit_id && audit.devices && (
                 <CardContent className="pt-0">
                   <div className="space-y-2 border-t border-border pt-4">
-                    {audit.devices.map((device: any, idx: number) => (
-                      <div key={idx} className="text-sm grid grid-cols-2 gap-2">
-                        <span className="text-muted">
-                          {device.device_class}: {device.description}
-                        </span>
-                        <span className="font-medium">{device.daily_kwh_total?.toFixed(2)} kWh/day</span>
-                      </div>
-                    ))}
+                    {audit.devices.map((device: any, idx: number) => {
+                      // Calculate daily kWh: (watts * quantity * hours) / 1000
+                      const dailyKwh = device.daily_kwh_total 
+                        ? Number(device.daily_kwh_total)
+                        : (device.power_rating_watts * device.quantity * device.hours_per_day) / 1000
+                      
+                      return (
+                        <div key={idx} className="text-sm grid grid-cols-2 gap-2">
+                          <span className="text-muted">
+                            {device.device_class}: {device.description}
+                          </span>
+                          <span className="font-medium">{dailyKwh.toFixed(2)} kWh/day</span>
+                        </div>
+                      )
+                    })}
                   </div>
                 </CardContent>
               )}
