@@ -127,7 +127,7 @@ export default function RecommendationsPage() {
               The system employs multiple heuristic algorithms and rule-based logic to identify optimization opportunities:
             </p>
             <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Idle Device Detection:</strong> Machines with >85% of time below 5% CPU utilization are flagged for automatic sleep/shutdown policies</li>
+              <li><strong>Idle Device Detection:</strong> Machines with &gt;85% of time below 5% CPU utilization are flagged for automatic sleep/shutdown policies</li>
               <li><strong>Power State Analysis:</strong> Devices that never enter low-power states despite idle periods suggest misconfigured power management</li>
               <li><strong>Inefficiency Scoring:</strong> Compares device power consumption against modern efficiency standards (e.g., 80 Plus certification for power supplies)</li>
               <li><strong>Usage Pattern Matching:</strong> Identifies lighting or HVAC running during unoccupied hours based on schedule data</li>
@@ -214,7 +214,7 @@ export default function RecommendationsPage() {
             <ul className="list-disc ml-6 mt-2 space-y-1">
               <li><strong>Enforce Sleep Policies:</strong> Most impactful low-cost intervention. Configure OS-level power management via Group Policy (Windows) or cron jobs (Linux)</li>
               <li><strong>Schedule-Based Shutdowns:</strong> Automatically power off lab computers at closing time, wake on LAN for morning classes</li>
-              <li><strong>Replace Inefficient Devices:</strong> Target devices >7 years old with high power consumption. Use Simulations page to compare specific models</li>
+              <li><strong>Replace Inefficient Devices:</strong> Target devices &gt;7 years old with high power consumption. Use Simulations page to compare specific models</li>
               <li><strong>Right-Size Infrastructure:</strong> Consolidate underutilized servers, scale down oversized cooling systems</li>
               <li><strong>Lighting Upgrades:</strong> Replace fluorescent tubes with LED panels (70-80% energy reduction with 2-3 year payback)</li>
               <li><strong>Behavioral Campaigns:</strong> Share idle waste reports with users, display real-time consumption dashboards in labs</li>
