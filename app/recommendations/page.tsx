@@ -24,6 +24,8 @@ interface EnvironmentalImpact {
   coalKg: number
 }
 
+import { PageHelp } from "@/components/page-help"
+
 export default function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [loading, setLoading] = useState(true)
@@ -50,16 +52,16 @@ export default function RecommendationsPage() {
   const calculateEnvironmentalImpact = (kwhSaved: number): EnvironmentalImpact => {
     // Kenya's grid carbon intensity: ~0.4 kg CO2/kWh (cleaner due to geothermal/hydro)
     const co2Kg = kwhSaved * 0.4
-    
+
     // 1 tree absorbs ~21 kg CO2/year
     const treesEquivalent = co2Kg / 21
-    
+
     // Water used in energy production: ~3 liters per kWh
     const waterLiters = kwhSaved * 3
-    
+
     // Coal equivalent: 1 kWh ≈ 0.4 kg of coal
     const coalKg = kwhSaved * 0.4
-    
+
     return { co2Kg, treesEquivalent, waterLiters, coalKg }
   }
 
@@ -103,17 +105,141 @@ export default function RecommendationsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between mb-2">
+      <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div>
             <div className="flex items-center gap-3">
               <Leaf className="w-8 h-8 text-green-600" />
               <h1 className="text-3xl font-bold">Energy & Environmental Impact</h1>
             </div>
+            <p className="text-muted mt-2">
+              Energy optimization strategies based on Responsible Computing (RC) principles
+            </p>
           </div>
-          <p className="text-muted">
-            Energy optimization strategies based on Responsible Computing (RC) principles
-          </p>
+          <PageHelp title="Recommendations Guide" description="Actionable interventions to optimize the fleet.">
+            <h3 className="font-semibold text-foreground">What are Recommendations?</h3>
+            <p>
+              The Recommendations Engine automatically analyzes your audit data and telemetry streams to generate prioritized, actionable suggestions for reducing energy consumption and carbon emissions. Unlike predictions (which forecast future states), recommendations tell you exactly what to do and estimate the savings from each action.
+            </p>
+
+            <h3 className="font-semibold text-foreground mt-4">How Recommendations are Computed</h3>
+            <p>
+              The system employs multiple heuristic algorithms and rule-based logic to identify optimization opportunities:
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-1">
+              <li><strong>Idle Device Detection:</strong> Machines with >85% of time below 5% CPU utilization are flagged for automatic sleep/shutdown policies</li>
+              <li><strong>Power State Analysis:</strong> Devices that never enter low-power states despite idle periods suggest misconfigured power management</li>
+              <li><strong>Inefficiency Scoring:</strong> Compares device power consumption against modern efficiency standards (e.g., 80 Plus certification for power supplies)</li>
+              <li><strong>Usage Pattern Matching:</strong> Identifies lighting or HVAC running during unoccupied hours based on schedule data</li>
+              <li><strong>Hardware Age Analysis:</strong> Flags devices older than 7 years for replacement consideration, especially if combined with high power consumption</li>
+              <li><strong>Comparative Benchmarking:</strong> Ranks similar devices (same class/model) to identify outliers consuming abnormally high power</li>
+            </ul>
+
+            <h3 className="font-semibold text-foreground mt-4">Understanding Priority Levels</h3>
+            <p>
+              Each recommendation is assigned a priority level that determines urgency and expected impact:
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-1">
+              <li><strong>Critical (Red):</strong> Immediate action required. Often indicates severe waste costing thousands of KSh monthly, such as:
+                <ul className="list-disc ml-6 mt-1">
+                  <li>Servers or HVAC running 24/7 in unused spaces</li>
+                  <li>Dozens of workstations left powered on overnight across multiple labs</li>
+                  <li>Grossly inefficient equipment consuming 3-5x typical power for their category</li>
+                </ul>
+              </li>
+              <li><strong>High (Orange):</strong> Important optimizations with significant savings potential, such as:
+                <ul className="list-disc ml-6 mt-1">
+                  <li>Enforcing automatic sleep mode on lab computers after 30 minutes idle</li>
+                  <li>Replacing aging devices that have surpassed 10 years of service</li>
+                  <li>Upgrading to LED lighting in high-usage areas</li>
+                </ul>
+              </li>
+              <li><strong>Medium (Yellow):</strong> Worthwhile improvements with moderate impact:
+                <ul className="list-disc ml-6 mt-1">
+                  <li>Optimizing HVAC setpoints (raising cooling temp by 1-2°C)</li>
+                  <li>Consolidating servers to improve utilization rates</li>
+                  <li>Scheduling backups and maintenance during off-peak hours</li>
+                </ul>
+              </li>
+              <li><strong>Low (Blue):</strong> Incremental optimizations and best practice adoptions:
+                <ul className="list-disc ml-6 mt-1">
+                  <li>Employee behavior changes (monitor brightness reduction, closing unused applications)</li>
+                  <li>Seasonal adjustments to heating/cooling schedules</li>
+                  <li>Preventive maintenance to maintain efficiency over time</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3 className="font-semibold text-foreground mt-4">Recommendation Card Details</h3>
+            <p>
+              Each recommendation card displays comprehensive information:
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-1">
+              <li><strong>Title:</strong> Concise description of the recommended action</li>
+              <li><strong>Category:</strong> Classification like "Power Management", "Hardware Replacement", "Policy Change", "Behavioral", "Infrastructure"</li>
+              <li><strong>Description:</strong> Detailed explanation of the problem, its causes, and why this recommendation matters</li>
+              <li><strong>Estimated Savings:</strong> Annual energy savings in kWh from implementing this recommendation</li>
+              <li><strong>Affected Devices:</strong> Specific machines, locations, or device classes impacted by this action</li>
+              <li><strong>Action Steps:</strong> Concrete implementation guidance (e.g., "Configure Group Policy: Set sleep timer to 30 minutes")</li>
+            </ul>
+
+            <h3 className="font-semibold text-foreground mt-4">Environmental Impact Metrics</h3>
+            <p>
+              The page displays aggregate environmental impact if all recommendations are implemented:
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-1">
+              <li><strong>CO₂ Reduction:</strong> Calculated using Kenya's grid carbon intensity (~0.4 kg CO₂/kWh, reflecting the country's geothermal and hydroelectric mix)</li>
+              <li><strong>Trees Equivalent:</strong> Number of mature trees needed to absorb the same CO₂ (1 tree ≈ 21 kg CO₂/year)</li>
+              <li><strong>Water Savings:</strong> Water consumed in energy production (~3 liters per kWh for thermal generation)</li>
+              <li><strong>Coal Equivalent:</strong> Mass of coal avoided by reducing energy demand (~0.4 kg coal per kWh)</li>
+            </ul>
+            <p className="mt-2">
+              These translations make abstract kWh savings tangible for non-technical stakeholders and sustainability reporting.
+            </p>
+
+            <h3 className="font-semibold text-foreground mt-4">Implementing Recommendations</h3>
+            <p>
+              <strong>Recommended workflow:</strong>
+            </p>
+            <ol className="list-decimal ml-6 mt-2 space-y-1">
+              <li><strong>Triage:</strong> Address all Critical recommendations within 1-2 weeks to stop severe waste immediately</li>
+              <li><strong>Quick Wins:</strong> Implement High/Medium software-based recommendations (power management policies, schedules) that require minimal cost</li>
+              <li><strong>Budget Planning:</strong> Use estimated savings to justify capital expenses for hardware replacements</li>
+              <li><strong>Phased Rollout:</strong> Implement changes in one pilot lab, measure actual savings over 2-4 weeks, then expand</li>
+              <li><strong>Monitor Impact:</strong> Return to Dashboard and Predictions pages after implementation to verify savings match estimates</li>
+              <li><strong>Iterate:</strong> Re-run recommendations monthly as new telemetry data reveals additional opportunities</li>
+            </ol>
+
+            <h3 className="font-semibold text-foreground mt-4">Common Recommendation Types</h3>
+            <ul className="list-disc ml-6 mt-2 space-y-1">
+              <li><strong>Enforce Sleep Policies:</strong> Most impactful low-cost intervention. Configure OS-level power management via Group Policy (Windows) or cron jobs (Linux)</li>
+              <li><strong>Schedule-Based Shutdowns:</strong> Automatically power off lab computers at closing time, wake on LAN for morning classes</li>
+              <li><strong>Replace Inefficient Devices:</strong> Target devices >7 years old with high power consumption. Use Simulations page to compare specific models</li>
+              <li><strong>Right-Size Infrastructure:</strong> Consolidate underutilized servers, scale down oversized cooling systems</li>
+              <li><strong>Lighting Upgrades:</strong> Replace fluorescent tubes with LED panels (70-80% energy reduction with 2-3 year payback)</li>
+              <li><strong>Behavioral Campaigns:</strong> Share idle waste reports with users, display real-time consumption dashboards in labs</li>
+            </ul>
+
+            <h3 className="font-semibold text-foreground mt-4">Integration with Other Pages</h3>
+            <p>
+              Recommendations integrate seamlessly with the platform's other tools:
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-1">
+              <li><strong>Dashboard:</strong> Verify which device classes consume most energy to prioritize recommendations</li>
+              <li><strong>Predictions:</strong> See "With Recommendations" forecast showing projected savings</li>
+              <li><strong>Simulations:</strong> Model specific hardware replacements suggested by recommendations with detailed TCO analysis</li>
+              <li><strong>Carbon Reports:</strong> Track actual carbon footprint reductions after implementations</li>
+            </ul>
+
+            <h3 className="font-semibold text-foreground mt-4">Best Practices</h3>
+            <ul className="list-disc ml-6 mt-2 space-y-1">
+              <li>Review recommendations weekly as new telemetry data arrives</li>
+              <li>Document implementation status and actual savings achieved for ROI tracking</li>
+              <li>Share recommendations with facilities management and IT teams for collaborative implementation</li>
+              <li>Use environmental impact metrics in sustainability reports and ESG disclosures</li>
+              <li>Celebrate and communicate wins (e.g., "Undergraduate Lab reduced energy costs by 35% this semester") to encourage continued participation</li>
+            </ul>
+          </PageHelp>
         </div>
       </header>
 
@@ -432,7 +558,7 @@ export default function RecommendationsPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
                   <p className="text-sm font-semibold text-green-800 mb-2">Kenya's Context:</p>
                   <p className="text-sm text-green-700">

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { 
-  TrendingUp, 
-  AlertTriangle, 
-  Clock, 
-  Zap, 
+import {
+  TrendingUp,
+  AlertTriangle,
+  Clock,
+  Zap,
   Leaf,
   Activity,
   AlertCircle,
@@ -80,6 +80,8 @@ interface PredictionData {
   anomalies: Anomaly[]
 }
 
+import { PageHelp } from "@/components/page-help"
+
 export default function PredictionsDashboard() {
   const router = useRouter()
   const [predictions, setPredictions] = useState<PredictionData | null>(null)
@@ -92,7 +94,7 @@ export default function PredictionsDashboard() {
         const response = await fetch("/api/predictions/analyze")
         if (!response.ok) throw new Error("Failed to fetch predictions")
         const data = await response.json()
-        
+
         if (data.predictions) {
           setPredictions(data.predictions)
         } else {
@@ -130,14 +132,147 @@ export default function PredictionsDashboard() {
     }
   }
 
+  const HeaderBlock = () => (
+    <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3">
+            <Activity className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold">Power Predictions & Anomaly Detection</h1>
+          </div>
+          <p className="text-muted-foreground mt-2">
+            Predictive analytics and real-time anomaly detection for energy consumption
+          </p>
+        </div>
+        <PageHelp title="Predictions Guide" description="Understanding forecasts and anomaly detection.">
+          <h3 className="font-semibold text-foreground">What are Predictions?</h3>
+          <p>
+            The Predictions page applies machine learning and statistical analysis to your historical telemetry data to forecast future energy consumption, identify waste patterns, and detect operational anomalies. It answers the question: "What will happen if we continue current practices?"
+          </p>
+
+          <h3 className="font-semibold text-foreground mt-4">Data Requirements</h3>
+          <p>
+            Predictions require sufficient telemetry data to establish baseline patterns. Upload at least:
+          </p>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li><strong>7 days of continuous data</strong> for initial trend analysis</li>
+            <li><strong>30+ days of data</strong> for accurate monthly forecasts and weekly pattern detection</li>
+            <li><strong>Multiple machines</strong> from the same lab/location for comparative analysis</li>
+          </ul>
+          <p className="mt-2">
+            The system automatically analyzes uploaded telemetry to generate predictions without requiring manual configuration.
+          </p>
+
+          <h3 className="font-semibold text-foreground mt-4">Key Sections Explained</h3>
+
+          <h4 className="font-semibold text-foreground mt-3">1. Current State Overview</h4>
+          <p>
+            Provides a real-time snapshot based on the most recent telemetry data points:
+          </p>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li><strong>Total Active Devices:</strong> Number of unique machines with recent telemetry</li>
+            <li><strong>Average Power Draw:</strong> Mean instantaneous power consumption across the fleet</li>
+            <li><strong>Total Daily kWh:</strong> Aggregate energy consumption extrapolated from recent patterns</li>
+            <li><strong>Monthly Cost Estimate:</strong> Current spending rate based on configured tariff (default: 16.3 KSh/kWh)</li>
+          </ul>
+
+          <h4 className="font-semibold text-foreground mt-3">2. Idle Impact Prediction</h4>
+          <p>
+            Identifies machines exhibiting significant idle power consumption (CPU utilization consistently below 5%) and calculates the financial and environmental cost of this waste:
+          </p>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li><strong>Idle Device List:</strong> Specific machines wasting energy, ranked by severity</li>
+            <li><strong>Daily Waste per Device:</strong> kWh consumed during idle periods each day</li>
+            <li><strong>Annual Waste Projection:</strong> Extrapolated yearly cost (KSh) and carbon emissions (kg CO₂) if idle behavior continues</li>
+            <li><strong>Total Fleet Idle Waste:</strong> Aggregate waste across all identified devices</li>
+          </ul>
+          <p className="mt-2">
+            <strong>Common causes of idle waste:</strong> Machines left on overnight, disabled sleep/hibernation settings, screen savers preventing power management, users forgetting to log out.
+          </p>
+
+          <h4 className="font-semibold text-foreground mt-3">3. No Action Forecasts</h4>
+          <p>
+            Projects future costs and consumption if current trends continue unchanged:
+          </p>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li><strong>Next Month Forecast:</strong> Estimated kWh, cost (KSh), and CO₂ emissions for the upcoming 30 days</li>
+            <li><strong>Next Year Forecast:</strong> Annual projections accounting for seasonal variations and growth trends</li>
+            <li><strong>With Recommendations Scenario:</strong> Potential outcomes if you implement the system's automated recommendations (from the Recommendations page), showing estimated savings in kWh, costs, and carbon reductions</li>
+          </ul>
+          <p className="mt-2">
+            Use these forecasts to budget for energy expenses, set sustainability goals, and justify intervention investments to stakeholders.
+          </p>
+
+          <h4 className="font-semibold text-foreground mt-3">4. Detected Anomalies</h4>
+          <p>
+            The anomaly detection engine continuously monitors telemetry streams for unusual behavior:
+          </p>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li><strong>High Power Events:</strong> Machines suddenly drawing significantly more watts than their historical baseline (could indicate hardware failure, malware, or unauthorized workloads like cryptocurrency mining)</li>
+            <li><strong>Unusual Patterns:</strong> Devices active during unexpected hours (e.g., lab machines running at 3 AM when the building should be empty)</li>
+            <li><strong>Idle Waste Alerts:</strong> Machines consistently idle but never entering sleep mode despite policy enforcement</li>
+            <li><strong>Power Spikes:</strong> Brief but extreme power consumption events that might indicate electrical issues</li>
+          </ul>
+          <p className="mt-2">
+            Each anomaly includes:
+          </p>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li><strong>Severity:</strong> Critical (immediate action required), Warning (investigate soon), or Info (monitor for trends)</li>
+            <li><strong>Device Name:</strong> Specific machine exhibiting the anomaly</li>
+            <li><strong>Deviation Percentage:</strong> How far the behavior deviates from expected norms</li>
+            <li><strong>Timestamp:</strong> When the anomaly was first detected</li>
+            <li><strong>Expected vs Actual Values:</strong> Comparison showing the magnitude of abnormality</li>
+          </ul>
+
+          <h3 className="font-semibold text-foreground mt-4">How Predictions Work</h3>
+          <p>
+            The prediction engine uses statistical modeling techniques:
+          </p>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li><strong>Time-Series Analysis:</strong> Identifies daily, weekly, and seasonal patterns in consumption</li>
+            <li><strong>Linear Regression:</strong> Projects trends forward based on historical growth rates</li>
+            <li><strong>Idle Detection Algorithm:</strong> Classifies machines as idle when CPU usage remains below 5% for &gt;85% of measured time</li>
+            <li><strong>Anomaly Scoring:</strong> Uses standard deviation thresholds (typically 2-3 sigma) to flag outliers</li>
+            <li><strong>Confidence Intervals:</strong> Predictions include uncertainty ranges based on data quality and variability</li>
+          </ul>
+
+          <h3 className="font-semibold text-foreground mt-4">Actionable Insights</h3>
+          <p>
+            Use predictions to:
+          </p>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li><strong>Budget Planning:</strong> Accurate monthly and annual cost forecasts for financial planning</li>
+            <li><strong>Policy Enforcement:</strong> Identify labs/departments not following power management policies</li>
+            <li><strong>Capacity Planning:</strong> Detect growing power demands before they strain electrical infrastructure</li>
+            <li><strong>Behavior Change:</strong> Share idle waste reports with users to encourage responsible computing practices</li>
+            <li><strong>Security Monitoring:</strong> Investigate anomalies that might indicate unauthorized access or compromised systems</li>
+            <li><strong>ROI Tracking:</strong> Compare "with recommendations" forecasts to actual consumption after implementing changes</li>
+          </ul>
+
+          <h3 className="font-semibold text-foreground mt-4">Best Practices</h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Review predictions weekly to identify new idle devices or emerging anomalies</li>
+            <li>Investigate critical anomalies within 24 hours to prevent damage or excessive waste</li>
+            <li>Compare monthly forecasts with actual bills to validate prediction accuracy</li>
+            <li>Export idle device lists to share with lab managers for corrective action</li>
+            <li>Track forecast improvements after implementing recommendations to measure initiative success</li>
+          </ul>
+        </PageHelp>
+      </div>
+    </header>
+  )
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Analyzing power consumption patterns...</p>
+      <div className="min-h-screen bg-background flex flex-col">
+        <HeaderBlock />
+        <div className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Analyzing power consumption patterns...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -147,16 +282,19 @@ export default function PredictionsDashboard() {
 
   if (error || !predictions) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto">
-          <Alert className="border-destructive bg-destructive/5">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error || "No prediction data available"}</AlertDescription>
-          </Alert>
-          <Button onClick={() => router.push('/dashboard')} className="mt-4">
-            Back to Dashboard
-          </Button>
+      <div className="min-h-screen bg-background flex flex-col">
+        <HeaderBlock />
+        <div className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            <Alert className="border-destructive bg-destructive/5">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error || "No prediction data available. Upload telemetry first."}</AlertDescription>
+            </Alert>
+            <Button onClick={() => router.push('/dashboard')} className="mt-4">
+              Back to Dashboard
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -166,23 +304,9 @@ export default function PredictionsDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <Activity className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold">Power Predictions & Anomaly Detection</h1>
-            </div>
-          </div>
-          <p className="text-muted-foreground">
-            Predictive analytics and real-time anomaly detection for energy consumption
-          </p>
-        </div>
-      </header>
-
+      <HeaderBlock />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
+
         {/* Critical Anomalies Alert */}
         {anomalies.filter(a => a.severity === "critical").length > 0 && (
           <Alert className="border-red-500 bg-red-500/10">
@@ -251,7 +375,7 @@ export default function PredictionsDashboard() {
             <Clock className="w-6 h-6 text-purple-600" />
             Impact of Idle Devices
           </h2>
-          
+
           {idleImpactPrediction.idleDevices.length > 0 ? (
             <>
               <Card className="mb-4 border-purple-200 bg-purple-50">
@@ -338,7 +462,7 @@ export default function PredictionsDashboard() {
             <TrendingUp className="w-6 h-6 text-red-600" />
             If No Action Is Taken
           </h2>
-          
+
           <div className="grid md:grid-cols-2 gap-4 mb-4">
             <Card className="border-orange-200 bg-orange-50">
               <CardHeader>

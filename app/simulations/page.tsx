@@ -52,16 +52,16 @@ function generateComprehensiveRecommendations(
 
   // Simplified scoring with better benchmarks
   const lifecycleScore = clamp(deviceA.age / deviceA.lifespan);
-  
+
   // Financial: TCO savings + reasonable payback period
   const tcoSavingsNormalized = tcoSavings > 0 ? Math.min(tcoSavings / 50000, 1) : 0;
   const paybackOK = apiResult.breakEvenMonths > 0 && apiResult.breakEvenMonths <= 72; // 6 years max
   const paybackScore = paybackOK ? Math.max(0, 1 - (apiResult.breakEvenMonths / 120)) : 0;
   let financialScore = clamp((tcoSavingsNormalized * 0.6) + (paybackScore * 0.4));
-  
+
   // Energy: 30% efficiency is excellent (more realistic than 40%)
   const energyScore = clamp(efficiencyScore / 30);
-  
+
   // Carbon: 50kg per year is significant (more realistic than 100kg for single devices)
   const carbonScore = clamp(Math.max(apiResult.savings.carbonPerYear, 0) / 50);
 
@@ -168,6 +168,8 @@ interface SimulationState {
   results: any | null
   error: string | null
 }
+
+import { PageHelp } from "@/components/page-help"
 
 export default function SimulationsPage() {
   const [simulationState, setSimulationState] = useState<SimulationState>({
@@ -349,19 +351,118 @@ export default function SimulationsPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between mb-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div>
             <div className="flex items-center gap-3">
               <Sliders className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold">Device Comparison & Simulation</h1>
             </div>
+            <p className="text-muted-foreground mt-2">
+              Analyze energy, carbon, and cost implications to make Responsible Computing decisions.
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <PageHelp title="Simulation Mechanics" description="How the physics engine computes your recommendations.">
+              <h3 className="font-semibold text-foreground">What is a Simulation?</h3>
+              <p>
+                The Simulation Engine performs a comprehensive side-by-side comparison between an existing device (Device A) and a proposed replacement (Device B). It calculates energy consumption, financial costs, carbon emissions, and lifecycle factors to provide an evidence-based replacement recommendation.
+              </p>
+
+              <h3 className="font-semibold text-foreground mt-4">How to Run a Simulation</h3>
+              <ol className="list-decimal ml-6 mt-2 space-y-1">
+                <li><strong>Configure Global Parameters:</strong> Set electricity tariff (KSh/kWh), carbon intensity factor (kg CO₂/kWh), degradation rate (%), discount rate, and inflation rate to match your local context</li>
+                <li><strong>Define Device A (Existing):</strong> Enter current device specifications including age, purchase cost, idle/normal/peak power consumption, daily usage hours per power state, and annual maintenance costs</li>
+                <li><strong>Define Device B (Replacement):</strong> Enter specifications for the proposed replacement device using the same parameters</li>
+                <li><strong>Adjust Optimization Weight:</strong> Slide between Financial Focus (prioritizes ROI) and Sustainability Focus (prioritizes carbon reduction even if financially neutral)</li>
+                <li><strong>Run Simulation:</strong> Click "Run Full Simulation" to compute comprehensive results</li>
+              </ol>
+
+              <h3 className="font-semibold text-foreground mt-4">Understanding Results</h3>
+              <p>
+                The simulation outputs a <strong>Decision</strong> (REPLACE, CAUTION, KEEP, or INSUFFICIENT_DATA) along with a <strong>Confidence Level</strong> (high, medium, low). Key result sections include:
+              </p>
+              <ul className="list-disc ml-6 mt-2 space-y-1">
+                <li><strong>Energy Analysis:</strong> Compares annual kWh consumption, showing efficiency improvements as percentages</li>
+                <li><strong>Financial Analysis:</strong> Shows Total Cost of Ownership (TCO) for both devices, annual cost savings, payback period (break-even time), and Net Present Value (NPV)</li>
+                <li><strong>Carbon Footprint:</strong> Quantifies CO₂ emissions per year for each device and calculates reduction potential</li>
+                <li><strong>Lifecycle Assessment:</strong> Evaluates device age versus expected lifespan to factor in upcoming replacement needs</li>
+                <li><strong>Recommendation Reasoning:</strong> Bullet points explaining the decision with specific scores for Financial, Energy, Carbon, and Lifecycle factors</li>
+              </ul>
+
+              <h3 className="font-semibold text-foreground mt-4">Total Cost of Ownership (TCO)</h3>
+              <p>
+                TCO goes beyond simple energy cost calculation by incorporating real-world financial factors:
+              </p>
+              <ul className="list-disc ml-6 mt-2 space-y-1">
+                <li><strong>Discount Rate:</strong> Represents the time value of money (typically 5%). Money today is worth more than money tomorrow due to investment opportunities and risk</li>
+                <li><strong>Inflation Rate:</strong> Models how energy prices increase over time (typically 3%), affecting future operational costs</li>
+                <li><strong>Purchase Cost:</strong> Upfront capital expenditure amortized over the device lifespan</li>
+                <li><strong>Maintenance Costs:</strong> Annual servicing, repairs, and support expenses</li>
+                <li><strong>Energy Costs:</strong> Ongoing operational expenses based on power consumption and tariff rates</li>
+                <li><strong>Salvage Value:</strong> Residual value at end-of-life (typically 10% of purchase price)</li>
+              </ul>
+              <p className="mt-2">
+                TCO uses Net Present Value (NPV) to calculate the true cost of ownership over a 10-year period, discounting future costs to today's monetary value.
+              </p>
+
+              <h3 className="font-semibold text-foreground mt-4">Optimization Slider Explained</h3>
+              <p>
+                By default (slider at 100% Financial Focus), the simulation prioritizes Return on Investment and enforces strict financial guardrails:
+              </p>
+              <ul className="list-disc ml-6 mt-2 space-y-1">
+                <li>Rejects replacements that increase annual costs by more than 5,000 KSh</li>
+                <li>Rejects replacements with break-even periods longer than device lifespan</li>
+                <li>Requires positive TCO savings for a REPLACE recommendation</li>
+              </ul>
+              <p className="mt-2">
+                When you slide toward <strong>Sustainability Focus</strong> (0% Financial), the engine relaxes these guardrails and prioritizes:
+              </p>
+              <ul className="list-disc ml-6 mt-2 space-y-1">
+                <li>Carbon reduction even if costs increase moderately</li>
+                <li>Energy efficiency improvements independent of payback period</li>
+                <li>Responsible Computing principles aligned with environmental goals</li>
+              </ul>
+              <p className="mt-2">
+                This slider allows you to balance financial constraints with sustainability commitments, making it suitable for both budget-conscious procurement and carbon-neutral initiatives.
+              </p>
+
+              <h3 className="font-semibold text-foreground mt-4">Power States & Usage Modeling</h3>
+              <p>
+                The simulation models three distinct power states to accurately reflect real-world usage:
+              </p>
+              <ul className="list-disc ml-6 mt-2 space-y-1">
+                <li><strong>Idle:</strong> Device powered on but not processing work (e.g., displaying login screen, minimal background processes)</li>
+                <li><strong>Normal:</strong> Typical work scenarios like office productivity, web browsing, light development</li>
+                <li><strong>Peak:</strong> Maximum load scenarios like video rendering, compiling large projects, running simulations</li>
+              </ul>
+              <p className="mt-2">
+                For each state, specify the wattage and daily hours. The engine weights these by time to calculate a realistic average daily consumption, accounting for degradation over years.
+              </p>
+
+              <h3 className="font-semibold text-foreground mt-4">Decision Logic & Guardrails</h3>
+              <p>
+                The simulation employs multiple scoring mechanisms and safety guardrails:
+              </p>
+              <ul className="list-disc ml-6 mt-2 space-y-1">
+                <li><strong>Data Quality Check:</strong> If uncertainty score drops below 40%, returns INSUFFICIENT_DATA requiring better inputs</li>
+                <li><strong>Lifecycle Trigger:</strong> If existing device exceeds 85% of its expected lifespan, strongly recommends replacement regardless of other factors</li>
+                <li><strong>Financial Viability:</strong> Evaluates TCO, break-even period, and annual savings to prevent financially disastrous recommendations</li>
+                <li><strong>Energy Efficiency Threshold:</strong> Requires &gt;30% efficiency improvement for strong REPLACE decisions, &gt;15% for moderate consideration</li>
+              </ul>
+
+              <h3 className="font-semibold text-foreground mt-4">Use Cases</h3>
+              <ul className="list-disc ml-6 mt-2 space-y-1">
+                <li><strong>Hardware Refresh Planning:</strong> Compare aging lab computers against modern energy-efficient models</li>
+                <li><strong>Budget Justification:</strong> Generate reports showing TCO savings to justify capital expenditure requests</li>
+                <li><strong>Carbon Reporting:</strong> Quantify emissions reductions for sustainability initiatives and ESG reporting</li>
+                <li><strong>Policy Development:</strong> Test different scenarios (e.g., LED vs fluorescent lighting) to inform procurement standards</li>
+                <li><strong>Grant Applications:</strong> Demonstrate environmental impact of proposed equipment upgrades</li>
+              </ul>
+            </PageHelp>
             <Button variant="outline" onClick={() => (window.location.href = "/dashboard")}>
               Back to Dashboard
             </Button>
           </div>
-          <p className="text-muted-foreground">
-            Analyze energy, carbon, and cost implications to make Responsible Computing decisions.
-          </p>
         </div>
       </header>
 
