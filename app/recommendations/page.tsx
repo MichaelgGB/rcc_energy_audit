@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertTriangle, TrendingDown, Lightbulb, CheckCircle, AlertCircle, Info, Leaf, Cloud, Droplet, TreePine } from "lucide-react"
+import { AlertTriangle, TrendingDown, Lightbulb, CheckCircle, AlertCircle, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Recommendation {
@@ -17,19 +17,14 @@ interface Recommendation {
   action: string
 }
 
-interface EnvironmentalImpact {
-  co2Kg: number
-  treesEquivalent: number
-  waterLiters: number
-  coalKg: number
-}
-
 import { PageHelp } from "@/components/page-help"
 
 export default function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const [totalConsumption, setTotalConsumption] = useState<number>(0)
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -38,6 +33,7 @@ export default function RecommendationsPage() {
         if (!response.ok) throw new Error("Failed to fetch recommendations")
         const data = await response.json()
         setRecommendations(data.recommendations || [])
+        setTotalConsumption(data.totalConsumption || 0)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error")
         setRecommendations([])
@@ -49,25 +45,11 @@ export default function RecommendationsPage() {
     fetchRecommendations()
   }, [])
 
-  const calculateEnvironmentalImpact = (kwhSaved: number): EnvironmentalImpact => {
-    // Kenya's grid carbon intensity: ~0.4 kg CO2/kWh (cleaner due to geothermal/hydro)
-    const co2Kg = kwhSaved * 0.4
-
-    // 1 tree absorbs ~21 kg CO2/year
-    const treesEquivalent = co2Kg / 21
-
-    // Water used in energy production: ~3 liters per kWh
-    const waterLiters = kwhSaved * 3
-
-    // Coal equivalent: 1 kWh ≈ 0.4 kg of coal
-    const coalKg = kwhSaved * 0.4
-
-    return { co2Kg, treesEquivalent, waterLiters, coalKg }
-  }
-
-  const getTotalEnvironmentalImpact = (): EnvironmentalImpact => {
+  const getTotalSavings = () => {
     const totalKwh = recommendations.reduce((sum, r) => sum + r.estimatedSavings, 0)
-    return calculateEnvironmentalImpact(totalKwh)
+    const totalCost = totalKwh * 16.3 // KSh per kWh
+    const reductionPercent = totalConsumption > 0 ? (totalKwh / totalConsumption) * 100 : 0
+    return { totalKwh, totalCost, reductionPercent }
   }
 
   const getPriorityColor = (priority: string) => {
@@ -100,7 +82,7 @@ export default function RecommendationsPage() {
     }
   }
 
-  const totalImpact = getTotalEnvironmentalImpact()
+  const totalSavings = getTotalSavings()
 
   return (
     <div className="min-h-screen bg-background">
@@ -109,17 +91,17 @@ export default function RecommendationsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <Leaf className="w-8 h-8 text-green-600" />
-              <h1 className="text-3xl font-bold">Energy & Environmental Impact</h1>
+              <TrendingDown className="w-8 h-8 text-green-600" />
+              <h1 className="text-3xl font-bold">Energy Optimization Recommendations</h1>
             </div>
             <p className="text-muted mt-2">
-              Energy optimization strategies based on Responsible Computing (RC) principles
+              Data-driven strategies to reduce energy consumption and operational costs
             </p>
           </div>
-          <PageHelp title="Recommendations Guide" description="Actionable interventions to optimize the fleet.">
+          <PageHelp title="Recommendations Guide" description="Actionable interventions to optimize energy consumption and reduce costs.">
             <h3 className="font-semibold text-foreground">What are Recommendations?</h3>
             <p>
-              The Recommendations Engine automatically analyzes your audit data and telemetry streams to generate prioritized, actionable suggestions for reducing energy consumption and carbon emissions. Unlike predictions (which forecast future states), recommendations tell you exactly what to do and estimate the savings from each action.
+              The Recommendations Engine automatically analyzes your audit data and telemetry streams to generate prioritized, actionable suggestions for reducing energy consumption and operational costs. Unlike predictions (which forecast future states), recommendations tell you exactly what to do and estimate the savings from each action in both kWh and KSh.
             </p>
 
             <h3 className="font-semibold text-foreground mt-4">How Recommendations are Computed</h3>
@@ -178,24 +160,22 @@ export default function RecommendationsPage() {
               <li><strong>Title:</strong> Concise description of the recommended action</li>
               <li><strong>Category:</strong> Classification like "Power Management", "Hardware Replacement", "Policy Change", "Behavioral", "Infrastructure"</li>
               <li><strong>Description:</strong> Detailed explanation of the problem, its causes, and why this recommendation matters</li>
-              <li><strong>Estimated Savings:</strong> Annual energy savings in kWh from implementing this recommendation</li>
+              <li><strong>Energy Savings:</strong> Annual energy reduction in kWh from implementing this recommendation</li>
+              <li><strong>Cost Savings:</strong> Annual cost reduction in KSh based on current electricity rates (KSh 16.30/kWh)</li>
+              <li><strong>Reduction Percentage:</strong> Percentage of total fleet energy consumption this recommendation addresses</li>
               <li><strong>Affected Devices:</strong> Specific machines, locations, or device classes impacted by this action</li>
               <li><strong>Action Steps:</strong> Concrete implementation guidance (e.g., "Configure Group Policy: Set sleep timer to 30 minutes")</li>
             </ul>
 
-            <h3 className="font-semibold text-foreground mt-4">Environmental Impact Metrics</h3>
+            <h3 className="font-semibold text-foreground mt-4">Understanding the Metrics</h3>
             <p>
-              The page displays aggregate environmental impact if all recommendations are implemented:
+              The three key metrics help you prioritize and justify implementations:
             </p>
             <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>CO₂ Reduction:</strong> Calculated using Kenya's grid carbon intensity (~0.4 kg CO₂/kWh, reflecting the country's geothermal and hydroelectric mix)</li>
-              <li><strong>Trees Equivalent:</strong> Number of mature trees needed to absorb the same CO₂ (1 tree ≈ 21 kg CO₂/year)</li>
-              <li><strong>Water Savings:</strong> Water consumed in energy production (~3 liters per kWh for thermal generation)</li>
-              <li><strong>Coal Equivalent:</strong> Mass of coal avoided by reducing energy demand (~0.4 kg coal per kWh)</li>
+              <li><strong>kWh Saved:</strong> Direct energy reduction - the primary technical metric for measuring efficiency improvements</li>
+              <li><strong>Cost Savings (KSh):</strong> Financial impact using Kenya Power's commercial rate of KSh 16.30/kWh - crucial for ROI calculations and budget justification</li>
+              <li><strong>% Reduction:</strong> Relative impact on your total energy consumption - helps identify which recommendations have the biggest impact on your overall footprint</li>
             </ul>
-            <p className="mt-2">
-              These translations make abstract kWh savings tangible for non-technical stakeholders and sustainability reporting.
-            </p>
 
             <h3 className="font-semibold text-foreground mt-4">Implementing Recommendations</h3>
             <p>
@@ -228,7 +208,7 @@ export default function RecommendationsPage() {
               <li><strong>Dashboard:</strong> Verify which device classes consume most energy to prioritize recommendations</li>
               <li><strong>Predictions:</strong> See "With Recommendations" forecast showing projected savings</li>
               <li><strong>Simulations:</strong> Model specific hardware replacements suggested by recommendations with detailed TCO analysis</li>
-              <li><strong>Carbon Reports:</strong> Track actual carbon footprint reductions after implementations</li>
+              <li><strong>Reports:</strong> Track actual cost reductions and consumption trends after implementations</li>
             </ul>
 
             <h3 className="font-semibold text-foreground mt-4">Best Practices</h3>
@@ -236,7 +216,7 @@ export default function RecommendationsPage() {
               <li>Review recommendations weekly as new telemetry data arrives</li>
               <li>Document implementation status and actual savings achieved for ROI tracking</li>
               <li>Share recommendations with facilities management and IT teams for collaborative implementation</li>
-              <li>Use environmental impact metrics in sustainability reports and ESG disclosures</li>
+              <li>Use cost savings data to justify capital expenditures and demonstrate operational efficiency improvements</li>
               <li>Celebrate and communicate wins (e.g., "Undergraduate Lab reduced energy costs by 35% this semester") to encourage continued participation</li>
             </ul>
           </PageHelp>
@@ -269,72 +249,48 @@ export default function RecommendationsPage() {
           </Alert>
         )}
 
-        {/* Environmental Impact Summary */}
+        {/* Total Savings Summary */}
         {recommendations.length > 0 && (
           <>
             <Card className="mb-8 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/30">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-green-700">
-                  <Leaf className="w-6 h-6" />
-                  Total Environmental Impact - If All Recommendations Implemented
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingDown className="w-6 h-6 text-green-600" />
+                  Total Potential Savings - If All Recommendations Implemented
                 </CardTitle>
-                <CardDescription>Annual reduction in environmental footprint</CardDescription>
+                <CardDescription>Annual energy and cost reduction</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-white/50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Cloud className="w-5 h-5 text-green-600" />
-                      <p className="text-sm font-medium text-gray-600">CO₂ Emissions Avoided</p>
-                    </div>
-                    <p className="text-3xl font-bold text-green-700">
-                      {totalImpact.co2Kg.toFixed(0)}
-                      <span className="text-lg ml-1">kg</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-white/50 rounded-lg p-6 border border-green-200">
+                    <p className="text-sm font-medium text-gray-600 mb-2">Energy Savings</p>
+                    <p className="text-4xl font-bold text-green-700">
+                      {totalSavings.totalKwh.toFixed(0)}
+                      <span className="text-xl ml-2">kWh</span>
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(totalImpact.co2Kg / 1000).toFixed(2)} metric tons CO₂
+                    <p className="text-xs text-gray-500 mt-2">
+                      Annual reduction
                     </p>
                   </div>
 
-                  <div className="bg-white/50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <TreePine className="w-5 h-5 text-green-600" />
-                      <p className="text-sm font-medium text-gray-600">Trees Planted Equivalent</p>
-                    </div>
-                    <p className="text-3xl font-bold text-green-700">
-                      {totalImpact.treesEquivalent.toFixed(1)}
-                      <span className="text-lg ml-1">trees</span>
+                  <div className="bg-white/50 rounded-lg p-6 border border-green-200">
+                    <p className="text-sm font-medium text-gray-600 mb-2">Cost Savings</p>
+                    <p className="text-4xl font-bold text-green-700">
+                      KSh {totalSavings.totalCost.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Annual carbon absorption
+                    <p className="text-xs text-gray-500 mt-2">
+                      Per year at KSh 16.30/kWh
                     </p>
                   </div>
 
-                  <div className="bg-white/50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Droplet className="w-5 h-5 text-blue-600" />
-                      <p className="text-sm font-medium text-gray-600">Water Saved</p>
-                    </div>
-                    <p className="text-3xl font-bold text-blue-700">
-                      {(totalImpact.waterLiters / 1000).toFixed(1)}
-                      <span className="text-lg ml-1">m³</span>
+                  <div className="bg-white/50 rounded-lg p-6 border border-green-200">
+                    <p className="text-sm font-medium text-gray-600 mb-2">Energy Reduction</p>
+                    <p className="text-4xl font-bold text-green-700">
+                      {totalSavings.reductionPercent.toFixed(1)}
+                      <span className="text-xl ml-1">%</span>
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {totalImpact.waterLiters.toFixed(0)} liters
-                    </p>
-                  </div>
-
-                  <div className="bg-white/50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <TrendingDown className="w-5 h-5 text-orange-600" />
-                      <p className="text-sm font-medium text-gray-600">Coal Not Burned</p>
-                    </div>
-                    <p className="text-3xl font-bold text-orange-700">
-                      {totalImpact.coalKg.toFixed(0)}
-                      <span className="text-lg ml-1">kg</span>
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Fossil fuel equivalent
+                    <p className="text-xs text-gray-500 mt-2">
+                      Of current consumption
                     </p>
                   </div>
                 </div>
@@ -391,7 +347,8 @@ export default function RecommendationsPage() {
         {/* Recommendations List */}
         <div className="space-y-6">
           {recommendations.map((rec, idx) => {
-            const impact = calculateEnvironmentalImpact(rec.estimatedSavings)
+            const costSavings = rec.estimatedSavings * 16.3
+            const reductionPercent = totalConsumption > 0 ? (rec.estimatedSavings / totalConsumption) * 100 : 0
             return (
               <Card key={idx} className={`border-2 transition-all ${getPriorityColor(rec.priority)}`}>
                 <CardHeader>
@@ -413,56 +370,53 @@ export default function RecommendationsPage() {
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  {/* Energy & Financial Savings */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Savings Metrics */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-background/50 rounded p-4 border border-border/50">
-                      <p className="text-sm text-muted mb-1">Estimated Annual Savings</p>
+                      <p className="text-sm text-muted mb-1">Energy Savings</p>
                       <p className="text-2xl font-bold text-green-600">
                         {rec.estimatedSavings.toFixed(0)}
-                        <span className="text-sm ml-2">kWh</span>
+                        <span className="text-sm ml-2">kWh/yr</span>
                       </p>
                       <p className="text-xs text-muted mt-2">
-                        ~Ksh {(rec.estimatedSavings * 16.3).toFixed(0)}/year at Ksh 16.30/kWh
+                        Annual reduction
                       </p>
                     </div>
 
                     <div className="bg-background/50 rounded p-4 border border-border/50">
-                      <p className="text-sm text-muted mb-1">Affected Workstations</p>
-                      <p className="text-2xl font-bold">{rec.affectedDevices.length}</p>
-                      <div className="text-xs text-muted mt-2 space-y-1">
-                        {rec.affectedDevices.slice(0, 3).map((device) => (
-                          <div key={device} className="truncate">
-                            • {device}
-                          </div>
-                        ))}
-                        {rec.affectedDevices.length > 3 && <div>• +{rec.affectedDevices.length - 3} more</div>}
-                      </div>
+                      <p className="text-sm text-muted mb-1">Cost Savings</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        KSh {costSavings.toLocaleString('en-KE', { maximumFractionDigits: 0 })}
+                      </p>
+                      <p className="text-xs text-muted mt-2">
+                        Per year at KSh 16.30/kWh
+                      </p>
+                    </div>
+
+                    <div className="bg-background/50 rounded p-4 border border-border/50">
+                      <p className="text-sm text-muted mb-1">Reduction</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {reductionPercent.toFixed(1)}
+                        <span className="text-sm ml-1">%</span>
+                      </p>
+                      <p className="text-xs text-muted mt-2">
+                        Of total consumption
+                      </p>
                     </div>
                   </div>
 
-                  {/* Environmental Impact */}
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Leaf className="w-5 h-5 text-green-700" />
-                      <p className="text-sm font-semibold text-green-800">Environmental Impact</p>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div>
-                        <p className="text-xs text-green-600 mb-1">CO₂ Avoided</p>
-                        <p className="text-lg font-bold text-green-700">{impact.co2Kg.toFixed(1)} kg</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-green-600 mb-1">Trees Equivalent</p>
-                        <p className="text-lg font-bold text-green-700">{impact.treesEquivalent.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-blue-600 mb-1">Water Saved</p>
-                        <p className="text-lg font-bold text-blue-700">{(impact.waterLiters / 1000).toFixed(2)} m³</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-orange-600 mb-1">Coal Not Burned</p>
-                        <p className="text-lg font-bold text-orange-700">{impact.coalKg.toFixed(1)} kg</p>
-                      </div>
+                  {/* Affected Devices */}
+                  <div className="bg-background/50 rounded p-4 border border-border/50">
+                    <p className="text-sm font-semibold mb-2">Affected Devices ({rec.affectedDevices.length}):</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs text-muted">
+                      {rec.affectedDevices.slice(0, 6).map((device) => (
+                        <div key={device} className="truncate">
+                          • {device}
+                        </div>
+                      ))}
+                      {rec.affectedDevices.length > 6 && (
+                        <div className="text-primary">• +{rec.affectedDevices.length - 6} more devices</div>
+                      )}
                     </div>
                   </div>
 
@@ -472,9 +426,9 @@ export default function RecommendationsPage() {
                     <p className="text-sm leading-relaxed">{rec.action}</p>
                   </div>
 
-                  {/* RCC Context */}
+                  {/* Business Context */}
                   <div className="bg-blue-500/5 rounded p-4 border border-blue-500/20">
-                    <p className="text-xs font-semibold text-blue-700 mb-2">RESPONSIBLE COMPUTING PRINCIPLE</p>
+                    <p className="text-xs font-semibold text-blue-700 mb-2">IMPLEMENTATION IMPACT</p>
                     <p className="text-sm text-blue-600">{getRCCContext(rec.category)}</p>
                   </div>
                 </CardContent>
@@ -483,41 +437,39 @@ export default function RecommendationsPage() {
           })}
         </div>
 
-        {/* Responsible Computing Framework */}
+        {/* Implementation Framework */}
         {recommendations.length > 0 && (
           <>
             <Card className="mt-8 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-green-600" />
-                  Responsible Computing Energy Audit Framework
+                  Energy Optimization Implementation Framework
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div>
                   <p className="font-semibold mb-1">Phase 1: Monitor & Measure</p>
                   <p className="text-muted">
-                    Collect detailed telemetry from all workstations to establish baseline energy consumption patterns.
+                    Collect detailed telemetry from all workstations to establish baseline energy consumption patterns and identify optimization opportunities.
                   </p>
                 </div>
                 <div>
-                  <p className="font-semibold mb-1">Phase 2: Analyze & Identify</p>
+                  <p className="font-semibold mb-1">Phase 2: Analyze & Prioritize</p>
                   <p className="text-muted">
-                    Use this dashboard to identify high-consumption zones and anomalies that deviate from best practices.
+                    Use this dashboard to identify high-consumption zones and prioritize interventions by cost savings potential and implementation effort.
                   </p>
                 </div>
                 <div>
-                  <p className="font-semibold mb-1">Phase 3: Optimize & Implement</p>
+                  <p className="font-semibold mb-1">Phase 3: Implement & Deploy</p>
                   <p className="text-muted">
-                    Deploy the recommended changes, starting with high-impact, low-effort interventions like idle
-                    management.
+                    Deploy the recommended changes, starting with high-ROI, low-effort interventions like automated power management policies.
                   </p>
                 </div>
                 <div>
-                  <p className="font-semibold mb-1">Phase 4: Verify & Report</p>
+                  <p className="font-semibold mb-1">Phase 4: Verify & Iterate</p>
                   <p className="text-muted">
-                    Track metrics post-implementation and generate monthly sustainability reports for stakeholder
-                    communication.
+                    Track metrics post-implementation to verify actual savings match estimates. Re-run analysis monthly to identify new optimization opportunities.
                   </p>
                 </div>
               </CardContent>
@@ -527,42 +479,42 @@ export default function RecommendationsPage() {
             <Card className="mt-8 bg-gradient-to-br from-green-500/5 to-blue-500/5 border-green-500/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Leaf className="w-5 h-5 text-green-600" />
-                  Why Responsible Computing Matters
+                  <Lightbulb className="w-5 h-5 text-green-600" />
+                  Why Energy Optimization Matters
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <p className="font-semibold text-green-700">🌍 Climate Impact</p>
+                    <p className="font-semibold text-green-700">💰 Direct Cost Savings</p>
                     <p className="text-muted">
-                      ICT sector accounts for 2-4% of global carbon emissions. Data centers and end-user devices consume massive amounts of energy, contributing to climate change. Responsible computing reduces this footprint.
+                      Energy costs are a significant operational expense. Implementing these recommendations directly reduces your monthly electricity bills, freeing up budget for core educational and research activities.
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <p className="font-semibold text-blue-700">💧 Water Conservation</p>
+                    <p className="font-semibold text-blue-700">📊 Operational Efficiency</p>
                     <p className="text-muted">
-                      Power plants use significant water for cooling. In Kenya, where water scarcity is an issue, reducing energy consumption directly saves water resources for communities and agriculture.
+                      Optimizing energy usage often improves overall system performance. Proper power management reduces hardware wear, extends equipment lifespan, and decreases maintenance costs.
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <p className="font-semibold text-orange-700">⚡ Energy Independence</p>
+                    <p className="font-semibold text-orange-700">⚡ Infrastructure Capacity</p>
                     <p className="text-muted">
-                      Reducing energy demand decreases reliance on fossil fuels and supports Kenya's renewable energy goals. Every kWh saved is one less to generate from coal or diesel.
+                      Reducing peak demand means existing infrastructure can support more devices without upgrades. This defers costly electrical system expansions and reduces transformer/circuit load.
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <p className="font-semibold text-purple-700">💰 Economic Benefits</p>
+                    <p className="font-semibold text-purple-700">📈 Scalability & Planning</p>
                     <p className="text-muted">
-                      Lower energy costs mean more resources for core business operations. Organizations save money while contributing to environmental sustainability—a win-win scenario.
+                      Understanding consumption patterns enables better capacity planning. Data-driven decisions help allocate resources efficiently and predict future infrastructure needs accurately.
                     </p>
                   </div>
                 </div>
 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
-                  <p className="text-sm font-semibold text-green-800 mb-2">Kenya's Context:</p>
+                  <p className="text-sm font-semibold text-green-800 mb-2">Business Impact:</p>
                   <p className="text-sm text-green-700">
-                    While Kenya has one of the cleanest electricity grids in Africa (80%+ renewable), reducing consumption still matters. Peak demand requires fossil fuel plants, and less consumption means less infrastructure strain, lower costs, and preserved natural resources for future generations.
+                    Implementing these recommendations typically delivers 15-40% reduction in energy costs with minimal capital investment. The data-driven approach ensures interventions target the highest-impact opportunities first, maximizing ROI.
                   </p>
                 </div>
               </CardContent>
@@ -577,13 +529,13 @@ export default function RecommendationsPage() {
 function getRCCContext(category: string): string {
   const contexts: { [key: string]: string } = {
     "Idle Management":
-      "Reducing idle power consumption is the foundation of responsible computing. Devices left running unnecessarily waste energy and increase carbon emissions. Automated sleep policies can reduce energy waste by 30-40% with zero impact on productivity.",
+      "Reducing idle power consumption is the most cost-effective energy optimization strategy. Devices left running unnecessarily waste significant energy. Automated sleep policies can reduce energy costs by 30-40% with zero impact on productivity or user experience.",
     "Load Balancing":
-      "Shifting computational workloads to off-peak hours reduces strain on the power grid and takes advantage of times when renewable energy sources (like solar) are more abundant. This temporal load balancing is a key strategy in sustainable computing.",
+      "Shifting computational workloads to off-peak hours reduces demand charges and takes advantage of lower electricity rates. Temporal load balancing optimizes infrastructure capacity and can reduce peak demand costs by 15-25%.",
     "Hardware Efficiency":
-      "Modern energy-efficient hardware not only consumes less power but is also manufactured with better environmental standards. Responsible procurement considers the full lifecycle: production, use, and disposal. Strategic upgrades reduce both operational emissions and e-waste.",
+      "Modern energy-efficient hardware not only consumes less power but also reduces cooling requirements and maintenance costs. Strategic hardware upgrades typically pay for themselves within 2-4 years through reduced operational expenses.",
     "Best Practices":
-      "Responsible computing is not just about technology—it's about culture. Educating staff on energy impacts, providing visibility into consumption metrics, and fostering awareness creates lasting behavioral change that compounds environmental benefits.",
+      "Energy optimization is not just about technology—it's about operational culture. Staff awareness of consumption patterns and providing visibility into metrics creates lasting behavioral changes that compound cost savings over time.",
   }
-  return contexts[category] || "Implementing this recommendation aligns with responsible computing principles and reduces environmental impact."
+  return contexts[category] || "Implementing this recommendation reduces operational costs and improves infrastructure efficiency."
 }
