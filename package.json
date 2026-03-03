@@ -1,5 +1,6 @@
-{
-  "name": "my-v0-project",
+
+  {
+    "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -37,7 +38,6 @@
     "@radix-ui/react-toggle": "latest",
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
-    "@types/pg": "^8.15.6",
     "@vercel/analytics": "latest",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
@@ -67,6 +67,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
+    "@types/pg": "^8.15.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8.5",

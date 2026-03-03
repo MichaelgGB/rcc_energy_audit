@@ -2,6 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import SidebarNav from "@/components/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -38,8 +40,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${_geist.className} font-sans antialiased bg-background text-foreground dark`}>
-        {children}
-        <Analytics />
+        <SidebarProvider>
+          <SidebarNav />
+          <main className="flex-1 w-full">
+            {children}
+            <Analytics />
+          </main>
+        </SidebarProvider>
       </body>
     </html>
   )

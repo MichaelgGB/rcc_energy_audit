@@ -1,4 +1,4 @@
-# Sustainable Computing Energy Audit Platform
+  # Sustainable Computing Energy Audit Platform
 
 A sophisticated full-stack application for monitoring and analyzing energy consumption in campus computing infrastructure. Combines manual audit data with real-time telemetry to identify optimization opportunities and reduce carbon footprint.
 
