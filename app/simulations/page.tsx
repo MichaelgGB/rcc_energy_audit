@@ -29,22 +29,12 @@ function clamp(value: number, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value))
 }
 
-function normalize(value: number, max: number) {
-  if (max === 0) return 0
-  return clamp(value / max)
-}
-
-function inverseNormalize(value: number, max: number) {
-  if (max === 0) return 0
-  return clamp(1 - value / max)
-}
-
-export function generateComprehensiveRecommendations(
+function generateComprehensiveRecommendations(
   deviceA: any,
   deviceB: any,
   apiResult: any,
   payload: any,
-  optimizationWeight: number = 100 // 0 to 100
+  optimizationWeight: number = 100
 ): RecommendationOutput {
   const tcoSavings = apiResult.TCOA - apiResult.TCOB;
   const tcoSavingsPercent = apiResult.TCOA !== 0 ? (tcoSavings / apiResult.TCOA) * 100 : 0;
@@ -60,19 +50,19 @@ export function generateComprehensiveRecommendations(
   else if (apiResult.uncertaintyScore >= 50) confidence = "medium";
   else confidence = "low";
 
-  // Simplified scoring - more intuitive
+  // Simplified scoring with better benchmarks
   const lifecycleScore = clamp(deviceA.age / deviceA.lifespan);
   
-  // Financial: Positive if saves money, considers TCO and payback
+  // Financial: TCO savings + reasonable payback period
   const tcoSavingsNormalized = tcoSavings > 0 ? Math.min(tcoSavings / 50000, 1) : 0;
   const paybackOK = apiResult.breakEvenMonths > 0 && apiResult.breakEvenMonths <= 72; // 6 years max
   const paybackScore = paybackOK ? Math.max(0, 1 - (apiResult.breakEvenMonths / 120)) : 0;
   let financialScore = clamp((tcoSavingsNormalized * 0.6) + (paybackScore * 0.4));
   
-  // Energy: Normalize efficiency score (30%+ is excellent)
+  // Energy: 30% efficiency is excellent (more realistic than 40%)
   const energyScore = clamp(efficiencyScore / 30);
   
-  // Carbon: Normalize carbon savings (50kg+ per year is significant)
+  // Carbon: 50kg per year is significant (more realistic than 100kg for single devices)
   const carbonScore = clamp(Math.max(apiResult.savings.carbonPerYear, 0) / 50);
 
   if (apiResult.uncertaintyScore < 60) {
@@ -81,7 +71,7 @@ export function generateComprehensiveRecommendations(
 
   const w = optimizationWeight / 100;
 
-  // Clearer weight distribution
+  // Weight distribution based on slider
   const weightFinancial = 0.10 + (0.70 * w);
   const weightLifecycle = 0.10;
   const weightEnergy = 0.50 - (0.45 * w);
@@ -94,8 +84,8 @@ export function generateComprehensiveRecommendations(
     (weightCarbon * carbonScore);
 
   let decision: "REPLACE" | "CAUTION" | "KEEP" | "INSUFFICIENT_DATA" = "KEEP";
-  if (totalScore >= 0.65) decision = "REPLACE";
-  else if (totalScore >= 0.45) decision = "CAUTION";
+  if (totalScore >= 0.55) decision = "REPLACE";  // Lowered from 0.65
+  else if (totalScore >= 0.40) decision = "CAUTION";  // Lowered from 0.45
 
   if (lifecycleScore > 0.85 && decision !== "KEEP") {
     decision = "REPLACE";
@@ -115,13 +105,12 @@ export function generateComprehensiveRecommendations(
       apiResult.breakEvenMonths > deviceB.lifespan * 12 ||
       (tcoSavings < 0 && Math.abs(tcoSavingsPercent) > 20);
 
-    // Only apply hard financial guardrails if sustainability is NOT the clear priority (e.g., slider > 30)
     if (isFinanciallyUnviable) {
       if (optimizationWeight > 30) {
         decision = "KEEP";
         if (apiResult.savings.costPerYear < -THRESHOLDS.MINIMAL_SAVINGS) reasons.push(`❌ Financial Guardrail: Annual costs increase by ${Math.abs(Math.round(apiResult.savings.costPerYear)).toLocaleString()} KSh.`);
         else if (apiResult.breakEvenMonths === -1) reasons.push("❌ Financial Guardrail: This replacement will never break even.");
-        else if (apiResult.breakEvenMonths > deviceB.lifespan * 12) reasons.push(`❌ Financial Guardrail: Returns take longer than the device lifespan (${apiResult.breakEvenMonths} months).`);
+        else if (apiResult.breakEvenMonths > deviceB.lifespan * 12) reasons.push(`❌ Financial Guardrail: Returns take longer than the device lifespan (${Math.round(apiResult.breakEvenMonths)} months).`);
         else reasons.push(`Financial Guardrail: Total Cost of Ownership is significantly higher (${Math.abs(Math.round(tcoSavingsPercent)).toLocaleString()}%).`);
       } else {
         reasons.push("Financial Caution: Negative ROI, but recommending based on your strong sustainability preference.");
@@ -134,17 +123,17 @@ export function generateComprehensiveRecommendations(
     scoresObj[a] > scoresObj[b] ? a : b
   );
 
-  if (dominantKey === 'financialScore') reasons.push("Primary driver: Strong Return on Investment and Total Cost of Ownership savings.");
-  else if (dominantKey === 'energyScore') reasons.push("Primary driver: Substantial energy efficiency improvements.");
-  else if (dominantKey === 'lifecycleScore') reasons.push("Primary driver: Current device is nearing end-of-life.");
-  else reasons.push("Primary driver: Significant carbon reduction and environmental benefits.");
+  if (dominantKey === 'financialScore') reasons.push("Strong Return on Investment and Total Cost of Ownership savings.");
+  else if (dominantKey === 'energyScore') reasons.push("Substantial energy efficiency improvements.");
+  else if (dominantKey === 'lifecycleScore') reasons.push("Current device is nearing end-of-life.");
+  else reasons.push("Significant carbon reduction and environmental benefits.");
 
   if (efficiencyScore > 30) {
     reasons.push("Strong case for replacement based on Energy Efficiency.");
   } else if (efficiencyScore > 15) {
     reasons.push("Moderate savings - consider replacement only if maintenance costs are high.");
   } else {
-    reasons.push("ℹMinimal energy savings - extend current device life to reduce e-waste.");
+    reasons.push("ℹ Minimal energy savings - extend current device life to reduce e-waste.");
   }
 
   if (deviceA.age > 5) {
@@ -152,7 +141,7 @@ export function generateComprehensiveRecommendations(
   }
 
   if (deviceB.idlePower < deviceA.idlePower * 0.5) {
-    reasons.push("⚡ Proposed device has superior idle efficiency.");
+    reasons.push("⚡ Proposed device has superior idle efficiency (Green Software Principle).");
   }
 
   if (apiResult.savings.costPerYear > 0 && apiResult.breakEvenMonths > 60) {
