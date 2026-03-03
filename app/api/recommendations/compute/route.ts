@@ -16,11 +16,17 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // Calculate total consumption for percentage calculations
+    const totalConsumption = metricsData.reduce((sum, metric) => {
+      return sum + (Number.parseFloat(metric.inferred_watts) || 0)
+    }, 0) / metricsData.length * 24 * 365 / 1000 // Average watts to annual kWh
+
     // Analyze patterns and generate recommendations
     const recommendations = generateEnergyRecommendations(metricsData)
 
     return NextResponse.json({
       recommendations,
+      totalConsumption,
       dataPoints: metricsData.length,
       generatedAt: new Date().toISOString(),
     })

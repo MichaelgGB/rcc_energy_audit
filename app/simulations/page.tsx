@@ -52,16 +52,16 @@ function generateComprehensiveRecommendations(
 
   // Simplified scoring with better benchmarks
   const lifecycleScore = clamp(deviceA.age / deviceA.lifespan);
-  
+
   // Financial: TCO savings + reasonable payback period
   const tcoSavingsNormalized = tcoSavings > 0 ? Math.min(tcoSavings / 50000, 1) : 0;
   const paybackOK = apiResult.breakEvenMonths > 0 && apiResult.breakEvenMonths <= 72; // 6 years max
   const paybackScore = paybackOK ? Math.max(0, 1 - (apiResult.breakEvenMonths / 120)) : 0;
   let financialScore = clamp((tcoSavingsNormalized * 0.6) + (paybackScore * 0.4));
-  
+
   // Energy: 30% efficiency is excellent (more realistic than 40%)
   const energyScore = clamp(efficiencyScore / 30);
-  
+
   // Carbon: 50kg per year is significant (more realistic than 100kg for single devices)
   const carbonScore = clamp(Math.max(apiResult.savings.carbonPerYear, 0) / 50);
 
@@ -168,6 +168,8 @@ interface SimulationState {
   results: any | null
   error: string | null
 }
+
+import { PageHelp } from "@/components/page-help"
 
 export default function SimulationsPage() {
   const [simulationState, setSimulationState] = useState<SimulationState>({
@@ -349,19 +351,57 @@ export default function SimulationsPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between mb-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div>
             <div className="flex items-center gap-3">
               <Sliders className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold">Device Comparison & Simulation</h1>
             </div>
+            <p className="text-muted-foreground mt-2">
+              Analyze energy, carbon, and cost implications to make Responsible Computing decisions.
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <PageHelp title="How to Run a Simulation" description="Compare two devices to see if a replacement pays off.">
+              <h3 className="font-semibold text-foreground">🎯 What You're Doing</h3>
+              <p className="text-sm">You're comparing <strong>Device A</strong> (what you have) against <strong>Device B</strong> (the replacement you're considering). The engine tells you if switching is worth it financially and environmentally.</p>
+
+              <h3 className="font-semibold text-foreground mt-4">⚙️ Global Settings — What do they mean?</h3>
+              <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+                <li><strong>Electricity Tariff (KSh/kWh):</strong> Kenya's KPLC commercial rate. Default is 16.3. Adjust if your facility has a different rate or uses a meter.</li>
+                <li><strong>Carbon Factor (kg CO₂/kWh):</strong> How "dirty" the electricity grid is. Kenya's default is <strong>0.4</strong> — lower than most countries due to geothermal and hydro. Change only if you have a more accurate local figure.</li>
+                <li><strong>Hardware Degradation (%):</strong> How much efficiency the device loses per year as it ages. Default 2% is realistic for most hardware.</li>
+                <li><strong>Include Uncertainty Analysis:</strong> When ticked, the engine slightly penalises results that rely on incomplete or estimated data. Leave it on for more honest recommendations.</li>
+                <li><strong>Discount Rate:</strong> The "time value of money" — money today is worth more than money in 5 years. 5% is a safe default.</li>
+                <li><strong>Inflation Rate:</strong> Energy prices rise over time. 3% mirrors Kenya's average. Increase during high-energy-cost periods.</li>
+                <li><strong>Salvage Value:</strong> What the old device is worth at end-of-life. 10% is a conservative estimate — can be set to 0 if selling isn't planned.</li>
+              </ul>
+
+              <h3 className="font-semibold text-foreground mt-4">⚡ Power States — Idle / Normal / Peak</h3>
+              <p className="text-sm">Devices don't always run at full power. Enter realistic Watts for each mode:</p>
+              <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+                <li><strong>Idle:</strong> Screen on, OS running, nothing active (e.g. 40–60W for a desktop)</li>
+                <li><strong>Normal:</strong> Regular use — coding, browsing, office work (e.g. 80–140W)</li>
+                <li><strong>Peak:</strong> Compiling, running simulations or rendering (e.g. 150–250W)</li>
+              </ul>
+              <p className="mt-1 text-sm">Also enter how many hours per day the device spends in each mode. They don't need to sum to 24.</p>
+
+              <h3 className="font-semibold text-foreground mt-4">🎚️ Optimization Slider</h3>
+              <p className="text-sm">Slide toward <strong>Financial (100%)</strong> to prioritize ROI — the engine will recommend KEEP if Device B isn't cheaper long-term. Slide toward <strong>Sustainability (0%)</strong> to prioritize lower emissions even if Device B is slightly more expensive. Useful for grant applications or carbon-neutral mandates.</p>
+
+              <h3 className="font-semibold text-foreground mt-4">📋 How to Read Results</h3>
+              <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+                <li><strong>REPLACE:</strong> Device B is clearly better — strong ROI or lifecycle advantages</li>
+                <li><strong>CAUTION:</strong> It's borderline. Consider maintenance costs or upcoming upgrades before deciding.</li>
+                <li><strong>KEEP:</strong> Device A is still cost-effective. Don't replace yet.</li>
+                <li><strong>INSUFFICIENT_DATA:</strong> Your inputs are too uncertain. Add more realistic specs.</li>
+                <li><strong>Trees to offset:</strong> Based on each tree absorbing ~21 kg CO₂/year. A useful number for sustainability reports.</li>
+              </ul>
+            </PageHelp>
             <Button variant="outline" onClick={() => (window.location.href = "/dashboard")}>
               Back to Dashboard
             </Button>
           </div>
-          <p className="text-muted-foreground">
-            Analyze energy, carbon, and cost implications to make Responsible Computing decisions.
-          </p>
         </div>
       </header>
 

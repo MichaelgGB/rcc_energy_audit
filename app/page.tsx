@@ -3,6 +3,8 @@ import Link from "next/link"
 import { ArrowRight, Zap, BarChart3, Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+import { PageHelp } from "@/components/page-help"
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
@@ -13,7 +15,20 @@ export default function HomePage() {
             <Zap className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">UON Campus Labs Energy Audit</h1>
           </div>
-          {/* Navigation is now handled by sidebar */}
+          <PageHelp title="Welcome to Energy Audit" description="Understand the platform's purpose.">
+            <p>
+              This platform enables you to transform raw energy data into actionable insights for the University of Nairobi campus computing labs.
+            </p>
+            <p>
+              <strong>Manual Audits</strong> allow you to perform baseline measurements by cataloging device specifications and their estimated usage.
+            </p>
+            <p>
+              <strong>Real-Time Monitoring</strong> captures dynamic telemetric data from individual workstations to identify actual power draw, idle waste, and high-load periods.
+            </p>
+            <p>
+              Navigate using the sidebar to explore analytics, predictions, simulations, and actionable recommendations.
+            </p>
+          </PageHelp>
         </div>
       </header>
 

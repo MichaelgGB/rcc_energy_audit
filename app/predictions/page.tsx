@@ -4,11 +4,11 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { 
-  TrendingUp, 
-  AlertTriangle, 
-  Clock, 
-  Zap, 
+import {
+  TrendingUp,
+  AlertTriangle,
+  Clock,
+  Zap,
   Leaf,
   Activity,
   AlertCircle,
@@ -80,6 +80,8 @@ interface PredictionData {
   anomalies: Anomaly[]
 }
 
+import { PageHelp } from "@/components/page-help"
+
 export default function PredictionsDashboard() {
   const router = useRouter()
   const [predictions, setPredictions] = useState<PredictionData | null>(null)
@@ -92,7 +94,7 @@ export default function PredictionsDashboard() {
         const response = await fetch("/api/predictions/analyze")
         if (!response.ok) throw new Error("Failed to fetch predictions")
         const data = await response.json()
-        
+
         if (data.predictions) {
           setPredictions(data.predictions)
         } else {
@@ -130,14 +132,60 @@ export default function PredictionsDashboard() {
     }
   }
 
+  const HeaderBlock = () => (
+    <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3">
+            <Activity className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold">Power Predictions & Anomaly Detection</h1>
+          </div>
+          <p className="text-muted-foreground mt-2">
+            Predictive analytics and real-time anomaly detection for energy consumption
+          </p>
+        </div>
+        <PageHelp title="How to Use Predictions" description="Understand what these forecasts mean and where to act.">
+          <h3 className="font-semibold text-foreground">🔮 What This Page Tells You</h3>
+          <p className="text-sm">This page takes your uploaded telemetry data and answers: <em>"If nothing changes, what will our energy bill and carbon footprint look like next month and next year?"</em> It also detects machines behaving abnormally right now.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Note: This page requires telemetry data — upload a CSV on the Audit page first.</p>
+
+          <h3 className="font-semibold text-foreground mt-4">📦 Reading Each Section</h3>
+          <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+            <li><strong>Current State:</strong> A snapshot of your fleet right now — how many machines are monitored, average watts drawn, today's kWh, and estimated monthly cost.</li>
+            <li><strong>Idle Impact (Purple):</strong> Machines spending most of their time below 5% CPU while still consuming power. These are your easiest wins — enabling sleep mode on even one lab can save thousands of KSh/year.</li>
+            <li><strong>If No Action (Red/Orange):</strong> The "do nothing" scenario. Use these numbers to justify budget requests or urgency to management.</li>
+            <li><strong>With Recommendations (Green):</strong> What happens if you implement the suggested changes from the <strong>Recommendations</strong> page. The difference between this and "No Action" is your savings opportunity.</li>
+            <li><strong>Anomalies:</strong> Machines behaving unexpectedly — drawing 3× their usual power, active at 2 AM, etc. Critical anomalies warrant immediate investigation (possible hardware fault or unauthorized use).</li>
+          </ul>
+
+          <h3 className="font-semibold text-foreground mt-4">⚡ Anomaly Severity Guide</h3>
+          <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+            <li><strong>🔴 Critical:</strong> Act now. High deviation from expected behavior — may indicate hardware failure or security issue.</li>
+            <li><strong>🟠 Warning:</strong> Investigate within a few days. Unusual pattern that may be waste or misconfiguration.</li>
+            <li><strong>🔵 Info:</strong> Keep an eye on it. Something is slightly off but not urgent.</li>
+          </ul>
+
+          <h3 className="font-semibold text-foreground mt-4">💡 Tips</h3>
+          <ul className="list-disc ml-5 mt-1 space-y-1 text-sm">
+            <li>Come back here after implementing sleep policies — the "Idle Impact" section should shrink.</li>
+            <li>The "Deviation" field on anomaly cards shows by how many watts the machine exceeded its expected range. A 50W+ deviation is usually significant.</li>
+          </ul>
+        </PageHelp>
+      </div>
+    </header>
+  )
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Analyzing power consumption patterns...</p>
+      <div className="min-h-screen bg-background flex flex-col">
+        <HeaderBlock />
+        <div className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Analyzing power consumption patterns...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -147,16 +195,19 @@ export default function PredictionsDashboard() {
 
   if (error || !predictions) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto">
-          <Alert className="border-destructive bg-destructive/5">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error || "No prediction data available"}</AlertDescription>
-          </Alert>
-          <Button onClick={() => router.push('/dashboard')} className="mt-4">
-            Back to Dashboard
-          </Button>
+      <div className="min-h-screen bg-background flex flex-col">
+        <HeaderBlock />
+        <div className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            <Alert className="border-destructive bg-destructive/5">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error || "No prediction data available. Upload telemetry first."}</AlertDescription>
+            </Alert>
+            <Button onClick={() => router.push('/dashboard')} className="mt-4">
+              Back to Dashboard
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -166,23 +217,9 @@ export default function PredictionsDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <Activity className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold">Power Predictions & Anomaly Detection</h1>
-            </div>
-          </div>
-          <p className="text-muted-foreground">
-            Predictive analytics and real-time anomaly detection for energy consumption
-          </p>
-        </div>
-      </header>
-
+      <HeaderBlock />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
+
         {/* Critical Anomalies Alert */}
         {anomalies.filter(a => a.severity === "critical").length > 0 && (
           <Alert className="border-red-500 bg-red-500/10">
@@ -251,7 +288,7 @@ export default function PredictionsDashboard() {
             <Clock className="w-6 h-6 text-purple-600" />
             Impact of Idle Devices
           </h2>
-          
+
           {idleImpactPrediction.idleDevices.length > 0 ? (
             <>
               <Card className="mb-4 border-purple-200 bg-purple-50">
@@ -338,7 +375,7 @@ export default function PredictionsDashboard() {
             <TrendingUp className="w-6 h-6 text-red-600" />
             If No Action Is Taken
           </h2>
-          
+
           <div className="grid md:grid-cols-2 gap-4 mb-4">
             <Card className="border-orange-200 bg-orange-50">
               <CardHeader>

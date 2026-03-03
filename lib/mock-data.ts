@@ -4,8 +4,8 @@ export const mockAuditStore = {
   audits: [
     {
       audit_id: 1,
-      audit_name: "Lighting Audit Lab A",
-      location: "Building A",
+      audit_name: "Lighting Audit PHD Lab",
+      location: "PHD Lab",
       audit_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
       devices: [
         {

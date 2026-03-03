@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Zap, BarChart3, Activity, Lightbulb, Target, Sliders } from "lucide-react"
+import { Zap, BarChart3, Activity, Lightbulb, Target, Sliders, Leaf } from "lucide-react"
 
 import {
   Sidebar,
@@ -28,6 +28,11 @@ const navigationItems = [
     title: "Dashboard",
     href: "/dashboard",
     icon: Activity,
+  },
+  {
+    title: "Carbon Report",
+    href: "/reports/carbon",
+    icon: Leaf,
   },
   {
     title: "Predictions",
