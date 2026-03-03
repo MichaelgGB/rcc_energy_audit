@@ -60,19 +60,20 @@ export function generateComprehensiveRecommendations(
   else if (apiResult.uncertaintyScore >= 50) confidence = "medium";
   else confidence = "low";
 
-  // Calculate scores first so they are always available
+  // Simplified scoring - more intuitive
   const lifecycleScore = clamp(deviceA.age / deviceA.lifespan);
-
-  let financialScore = clamp(
-    0.5 * normalize(Math.max(tcoSavings, 0), apiResult.TCOA) +
-    0.3 * inverseNormalize(apiResult.breakEvenMonths, deviceB.lifespan * 12) +
-    0.2 * normalize(Math.max(apiResult.savings.costPerYear, 0), 50000)
-  );
-
-  // An efficiency score of 40% is considered "excellent", so we normalize against 40 instead of 100.
-  const energyScore = clamp(efficiencyScore / 40);
-  // 100kg CO2 savings per year is significant, so normalize against 100 instead of 200.
-  const carbonScore = clamp(Math.max(apiResult.savings.carbonPerYear, 0) / 100);
+  
+  // Financial: Positive if saves money, considers TCO and payback
+  const tcoSavingsNormalized = tcoSavings > 0 ? Math.min(tcoSavings / 50000, 1) : 0;
+  const paybackOK = apiResult.breakEvenMonths > 0 && apiResult.breakEvenMonths <= 72; // 6 years max
+  const paybackScore = paybackOK ? Math.max(0, 1 - (apiResult.breakEvenMonths / 120)) : 0;
+  let financialScore = clamp((tcoSavingsNormalized * 0.6) + (paybackScore * 0.4));
+  
+  // Energy: Normalize efficiency score (30%+ is excellent)
+  const energyScore = clamp(efficiencyScore / 30);
+  
+  // Carbon: Normalize carbon savings (50kg+ per year is significant)
+  const carbonScore = clamp(Math.max(apiResult.savings.carbonPerYear, 0) / 50);
 
   if (apiResult.uncertaintyScore < 60) {
     financialScore *= 0.85;
@@ -80,8 +81,7 @@ export function generateComprehensiveRecommendations(
 
   const w = optimizationWeight / 100;
 
-  // If w=1 (Financial), financial is 80%, energy+carbon is 10%.
-  // If w=0 (Sustainability), financial is 10%, energy+carbon is 80%.
+  // Clearer weight distribution
   const weightFinancial = 0.10 + (0.70 * w);
   const weightLifecycle = 0.10;
   const weightEnergy = 0.50 - (0.45 * w);
@@ -94,8 +94,8 @@ export function generateComprehensiveRecommendations(
     (weightCarbon * carbonScore);
 
   let decision: "REPLACE" | "CAUTION" | "KEEP" | "INSUFFICIENT_DATA" = "KEEP";
-  if (totalScore >= 0.75) decision = "REPLACE";
-  else if (totalScore >= 0.55) decision = "CAUTION";
+  if (totalScore >= 0.65) decision = "REPLACE";
+  else if (totalScore >= 0.45) decision = "CAUTION";
 
   if (lifecycleScore > 0.85 && decision !== "KEEP") {
     decision = "REPLACE";
@@ -122,9 +122,9 @@ export function generateComprehensiveRecommendations(
         if (apiResult.savings.costPerYear < -THRESHOLDS.MINIMAL_SAVINGS) reasons.push(`❌ Financial Guardrail: Annual costs increase by ${Math.abs(Math.round(apiResult.savings.costPerYear)).toLocaleString()} KSh.`);
         else if (apiResult.breakEvenMonths === -1) reasons.push("❌ Financial Guardrail: This replacement will never break even.");
         else if (apiResult.breakEvenMonths > deviceB.lifespan * 12) reasons.push(`❌ Financial Guardrail: Returns take longer than the device lifespan (${apiResult.breakEvenMonths} months).`);
-        else reasons.push(`❌ Financial Guardrail: Total Cost of Ownership is significantly higher (${Math.abs(Math.round(tcoSavingsPercent)).toLocaleString()}%).`);
+        else reasons.push(`Financial Guardrail: Total Cost of Ownership is significantly higher (${Math.abs(Math.round(tcoSavingsPercent)).toLocaleString()}%).`);
       } else {
-        reasons.push("⚠️ Financial Caution: Negative ROI, but recommending based on your strong sustainability preference.");
+        reasons.push("Financial Caution: Negative ROI, but recommending based on your strong sustainability preference.");
       }
     }
   }
@@ -134,29 +134,30 @@ export function generateComprehensiveRecommendations(
     scoresObj[a] > scoresObj[b] ? a : b
   );
 
-  if (dominantKey === 'financialScore') reasons.push("💰 Primary driver: Strong Return on Investment and Total Cost of Ownership savings.");
-  else if (dominantKey === 'energyScore') reasons.push("🌍 Primary driver: Substantial energy efficiency improvements.");
-  else if (dominantKey === 'lifecycleScore') reasons.push("♻️ Primary driver: Current device is nearing end-of-life.");
-  else reasons.push("🌱 Primary driver: Significant carbon reduction and environmental benefits.");
+  if (dominantKey === 'financialScore') reasons.push("Primary driver: Strong Return on Investment and Total Cost of Ownership savings.");
+  else if (dominantKey === 'energyScore') reasons.push("Primary driver: Substantial energy efficiency improvements.");
+  else if (dominantKey === 'lifecycleScore') reasons.push("Primary driver: Current device is nearing end-of-life.");
+  else reasons.push("Primary driver: Significant carbon reduction and environmental benefits.");
 
   if (efficiencyScore > 30) {
-    reasons.push("✅ Strong case for replacement based on Energy Efficiency.");
+    reasons.push("Strong case for replacement based on Energy Efficiency.");
   } else if (efficiencyScore > 15) {
-    reasons.push("⚠️ Moderate savings - consider replacement only if maintenance costs are high.");
+    reasons.push("Moderate savings - consider replacement only if maintenance costs are high.");
   } else {
-    reasons.push("ℹ️ Minimal energy savings - extend current device life to reduce e-waste.");
+    reasons.push("ℹMinimal energy savings - extend current device life to reduce e-waste.");
   }
 
   if (deviceA.age > 5) {
-    reasons.push("♻️ Device A is nearing end-of-life. Ensure certified e-waste recycling.");
+    reasons.push("Device A is nearing end-of-life. Ensure certified e-waste recycling.");
   }
 
   if (deviceB.idlePower < deviceA.idlePower * 0.5) {
-    reasons.push("⚡ Proposed device has superior idle efficiency (Green Software Principle).");
+    reasons.push("⚡ Proposed device has superior idle efficiency.");
   }
 
-  if (apiResult.savings.costPerYear > 0 && deviceB.purchaseCost > apiResult.savings.costPerYear * 5) {
-    reasons.push("🕒 The payback period is relatively long (>5 years) compared to annual savings.");
+  if (apiResult.savings.costPerYear > 0 && apiResult.breakEvenMonths > 60) {
+    const paybackYears = Math.round((apiResult.breakEvenMonths / 12) * 10) / 10;
+    reasons.push(`The payback period is relatively long (${paybackYears} years) compared to annual savings.`);
   }
 
   return {
@@ -199,6 +200,7 @@ export default function SimulationsPage() {
   // Device A (Existing - High Contrast: Red/Warm)
   const [deviceAName, setDeviceAName] = useState("Existing Device")
   const [deviceAAge, setDeviceAAge] = useState(3)
+  const [deviceAPurchaseCost, setDeviceAPurchaseCost] = useState(50000)
   const [deviceAIdleWatts, setDeviceAIdleWatts] = useState(50)
   const [deviceANormalWatts, setDeviceANormalWatts] = useState(120)
   const [deviceAPeakWatts, setDeviceAPeakWatts] = useState(200)
@@ -231,7 +233,7 @@ export default function SimulationsPage() {
         normalPower: deviceANormalWatts,
         peakPower: deviceAPeakWatts,
         age: deviceAAge,
-        purchaseCost: 0, // Assume 0 if already perfectly owned or unknown
+        purchaseCost: deviceAPurchaseCost,
         lifespan: 10,  // Need a default lifespan for TCO calculation
         maintenanceCost: deviceAMaintenanceCost,
         usage: {
@@ -506,7 +508,16 @@ export default function SimulationsPage() {
                   className="mt-1 bg-background"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-xs font-bold uppercase text-muted-foreground">Purchase Cost (KSh)</label>
+                  <Input
+                    type="number"
+                    value={deviceAPurchaseCost}
+                    onChange={(e) => setDeviceAPurchaseCost(Number(e.target.value))}
+                    className="mt-1 bg-background"
+                  />
+                </div>
                 <div>
                   <label className="text-xs font-bold uppercase text-muted-foreground">Age (Years)</label>
                   <Input
