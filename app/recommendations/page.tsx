@@ -98,126 +98,31 @@ export default function RecommendationsPage() {
               Data-driven strategies to reduce energy consumption and operational costs
             </p>
           </div>
-          <PageHelp title="Recommendations Guide" description="Actionable interventions to optimize energy consumption and reduce costs.">
-            <h3 className="font-semibold text-foreground">What are Recommendations?</h3>
-            <p>
-              The Recommendations Engine automatically analyzes your audit data and telemetry streams to generate prioritized, actionable suggestions for reducing energy consumption and operational costs. Unlike predictions (which forecast future states), recommendations tell you exactly what to do and estimate the savings from each action in both kWh and KSh.
-            </p>
+          <PageHelp title="How to Use Recommendations" description="Turn these into actual savings in your labs.">
+            <h3 className="font-semibold text-foreground">📋 What You're Looking At</h3>
+            <p className="text-sm">This page automatically analyzes your telemetry data and generates a ranked list of concrete actions you can take to reduce energy consumption. No manual input needed — just upload telemetry data and come here.</p>
 
-            <h3 className="font-semibold text-foreground mt-4">How Recommendations are Computed</h3>
-            <p>
-              The system employs multiple heuristic algorithms and rule-based logic to identify optimization opportunities:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Idle Device Detection:</strong> Machines with &gt;85% of time below 5% CPU utilization are flagged for automatic sleep/shutdown policies</li>
-              <li><strong>Power State Analysis:</strong> Devices that never enter low-power states despite idle periods suggest misconfigured power management</li>
-              <li><strong>Inefficiency Scoring:</strong> Compares device power consumption against modern efficiency standards (e.g., 80 Plus certification for power supplies)</li>
-              <li><strong>Usage Pattern Matching:</strong> Identifies lighting or HVAC running during unoccupied hours based on schedule data</li>
-              <li><strong>Hardware Age Analysis:</strong> Flags devices older than 7 years for replacement consideration, especially if combined with high power consumption</li>
-              <li><strong>Comparative Benchmarking:</strong> Ranks similar devices (same class/model) to identify outliers consuming abnormally high power</li>
+            <h3 className="font-semibold text-foreground mt-4">🚦 Priority Colors — What to Do First</h3>
+            <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+              <li><strong>🔴 Critical:</strong> Act within this week. Something is severely wasteful — e.g., 30 computers running all night with nobody logged in.</li>
+              <li><strong>🟠 High:</strong> Act soon. High ROI, low effort — usually software-only fixes like enabling a Group Policy sleep timer.</li>
+              <li><strong>🟡 Medium:</strong> Schedule for next month. Good savings, slightly more effort (e.g., HVAC scheduling adjustment).</li>
+              <li><strong>🔵 Low:</strong> Whenever convenient. Behavioral nudges or preventive maintenance.</li>
             </ul>
 
-            <h3 className="font-semibold text-foreground mt-4">Understanding Priority Levels</h3>
-            <p>
-              Each recommendation is assigned a priority level that determines urgency and expected impact:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Critical (Red):</strong> Immediate action required. Often indicates severe waste costing thousands of KSh monthly, such as:
-                <ul className="list-disc ml-6 mt-1">
-                  <li>Servers or HVAC running 24/7 in unused spaces</li>
-                  <li>Dozens of workstations left powered on overnight across multiple labs</li>
-                  <li>Grossly inefficient equipment consuming 3-5x typical power for their category</li>
-                </ul>
-              </li>
-              <li><strong>High (Orange):</strong> Important optimizations with significant savings potential, such as:
-                <ul className="list-disc ml-6 mt-1">
-                  <li>Enforcing automatic sleep mode on lab computers after 30 minutes idle</li>
-                  <li>Replacing aging devices that have surpassed 10 years of service</li>
-                  <li>Upgrading to LED lighting in high-usage areas</li>
-                </ul>
-              </li>
-              <li><strong>Medium (Yellow):</strong> Worthwhile improvements with moderate impact:
-                <ul className="list-disc ml-6 mt-1">
-                  <li>Optimizing HVAC setpoints (raising cooling temp by 1-2°C)</li>
-                  <li>Consolidating servers to improve utilization rates</li>
-                  <li>Scheduling backups and maintenance during off-peak hours</li>
-                </ul>
-              </li>
-              <li><strong>Low (Blue):</strong> Incremental optimizations and best practice adoptions:
-                <ul className="list-disc ml-6 mt-1">
-                  <li>Employee behavior changes (monitor brightness reduction, closing unused applications)</li>
-                  <li>Seasonal adjustments to heating/cooling schedules</li>
-                  <li>Preventive maintenance to maintain efficiency over time</li>
-                </ul>
-              </li>
+            <h3 className="font-semibold text-foreground mt-4">📊 Reading a Recommendation Card</h3>
+            <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+              <li><strong>kWh Saved / Cost Savings:</strong> What you save per year by implementing this one action.</li>
+              <li><strong>% Reduction:</strong> That saving as a fraction of your total consumption — higher % = bigger impact on your footprint.</li>
+              <li><strong>Affected Devices:</strong> Which specific machines or locations are involved. Cross-reference with lab names from your audits.</li>
+              <li><strong>Recommended Actions:</strong> A concrete implementation step — e.g., "Configure Group Policy: Set sleep timer to 30 minutes."</li>
             </ul>
 
-            <h3 className="font-semibold text-foreground mt-4">Recommendation Card Details</h3>
-            <p>
-              Each recommendation card displays comprehensive information:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Title:</strong> Concise description of the recommended action</li>
-              <li><strong>Category:</strong> Classification like "Power Management", "Hardware Replacement", "Policy Change", "Behavioral", "Infrastructure"</li>
-              <li><strong>Description:</strong> Detailed explanation of the problem, its causes, and why this recommendation matters</li>
-              <li><strong>Energy Savings:</strong> Annual energy reduction in kWh from implementing this recommendation</li>
-              <li><strong>Cost Savings:</strong> Annual cost reduction in KSh based on current electricity rates (KSh 16.30/kWh)</li>
-              <li><strong>Reduction Percentage:</strong> Percentage of total fleet energy consumption this recommendation addresses</li>
-              <li><strong>Affected Devices:</strong> Specific machines, locations, or device classes impacted by this action</li>
-              <li><strong>Action Steps:</strong> Concrete implementation guidance (e.g., "Configure Group Policy: Set sleep timer to 30 minutes")</li>
-            </ul>
-
-            <h3 className="font-semibold text-foreground mt-4">Understanding the Metrics</h3>
-            <p>
-              The three key metrics help you prioritize and justify implementations:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>kWh Saved:</strong> Direct energy reduction - the primary technical metric for measuring efficiency improvements</li>
-              <li><strong>Cost Savings (KSh):</strong> Financial impact using Kenya Power's commercial rate of KSh 16.30/kWh - crucial for ROI calculations and budget justification</li>
-              <li><strong>% Reduction:</strong> Relative impact on your total energy consumption - helps identify which recommendations have the biggest impact on your overall footprint</li>
-            </ul>
-
-            <h3 className="font-semibold text-foreground mt-4">Implementing Recommendations</h3>
-            <p>
-              <strong>Recommended workflow:</strong>
-            </p>
-            <ol className="list-decimal ml-6 mt-2 space-y-1">
-              <li><strong>Triage:</strong> Address all Critical recommendations within 1-2 weeks to stop severe waste immediately</li>
-              <li><strong>Quick Wins:</strong> Implement High/Medium software-based recommendations (power management policies, schedules) that require minimal cost</li>
-              <li><strong>Budget Planning:</strong> Use estimated savings to justify capital expenses for hardware replacements</li>
-              <li><strong>Phased Rollout:</strong> Implement changes in one pilot lab, measure actual savings over 2-4 weeks, then expand</li>
-              <li><strong>Monitor Impact:</strong> Return to Dashboard and Predictions pages after implementation to verify savings match estimates</li>
-              <li><strong>Iterate:</strong> Re-run recommendations monthly as new telemetry data reveals additional opportunities</li>
-            </ol>
-
-            <h3 className="font-semibold text-foreground mt-4">Common Recommendation Types</h3>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Enforce Sleep Policies:</strong> Most impactful low-cost intervention. Configure OS-level power management via Group Policy (Windows) or cron jobs (Linux)</li>
-              <li><strong>Schedule-Based Shutdowns:</strong> Automatically power off lab computers at closing time, wake on LAN for morning classes</li>
-              <li><strong>Replace Inefficient Devices:</strong> Target devices &gt;7 years old with high power consumption. Use Simulations page to compare specific models</li>
-              <li><strong>Right-Size Infrastructure:</strong> Consolidate underutilized servers, scale down oversized cooling systems</li>
-              <li><strong>Lighting Upgrades:</strong> Replace fluorescent tubes with LED panels (70-80% energy reduction with 2-3 year payback)</li>
-              <li><strong>Behavioral Campaigns:</strong> Share idle waste reports with users, display real-time consumption dashboards in labs</li>
-            </ul>
-
-            <h3 className="font-semibold text-foreground mt-4">Integration with Other Pages</h3>
-            <p>
-              Recommendations integrate seamlessly with the platform's other tools:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Dashboard:</strong> Verify which device classes consume most energy to prioritize recommendations</li>
-              <li><strong>Predictions:</strong> See "With Recommendations" forecast showing projected savings</li>
-              <li><strong>Simulations:</strong> Model specific hardware replacements suggested by recommendations with detailed TCO analysis</li>
-              <li><strong>Reports:</strong> Track actual cost reductions and consumption trends after implementations</li>
-            </ul>
-
-            <h3 className="font-semibold text-foreground mt-4">Best Practices</h3>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li>Review recommendations weekly as new telemetry data arrives</li>
-              <li>Document implementation status and actual savings achieved for ROI tracking</li>
-              <li>Share recommendations with facilities management and IT teams for collaborative implementation</li>
-              <li>Use cost savings data to justify capital expenditures and demonstrate operational efficiency improvements</li>
-              <li>Celebrate and communicate wins (e.g., "Undergraduate Lab reduced energy costs by 35% this semester") to encourage continued participation</li>
+            <h3 className="font-semibold text-foreground mt-4">🔗 Working With Other Pages</h3>
+            <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+              <li>See a device flagged for replacement? Go to <strong>Simulations</strong> to calculate if a specific new model is worth it.</li>
+              <li>After implementing changes, re-upload telemetry and check <strong>Predictions</strong> to see if the "With Recommendations" forecast improves.</li>
+              <li>Bring the savings numbers to your <strong>Carbon Report</strong> to document environmental progress.</li>
             </ul>
           </PageHelp>
         </div>

@@ -24,55 +24,26 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold">Energy Dashboard</h1>
             <p className="text-muted mt-2">Real-time monitoring and analysis</p>
           </div>
-          <PageHelp title="Dashboard Analytics Guide" description="Understanding your system's performance metrics.">
-            <h3 className="font-semibold text-foreground">Purpose of the Dashboard</h3>
-            <p>
-              The Energy Dashboard serves as the central analytics hub for monitoring and visualizing energy consumption patterns. It aggregates data from both manual audits and real-time telemetry to provide comprehensive insights into your computing infrastructure's energy footprint.
-            </p>
-
-            <h3 className="font-semibold text-foreground mt-4">Manual Audits Analysis Tab</h3>
-            <p>
-              This tab visualizes your static audit data, revealing patterns in your baseline infrastructure:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Total Consumption Overview:</strong> Aggregate daily kWh across all audited locations and devices</li>
-              <li><strong>Consumption by Location:</strong> Bar charts showing which physical spaces consume the most energy, helping prioritize intervention areas</li>
-              <li><strong>Consumption by Device Class:</strong> Pie chart breaking down energy use by category (Lighting, Computing, HVAC, Servers, Networking) to identify which equipment types dominate your footprint</li>
-              <li><strong>Device Type Distribution:</strong> View the mix of equipment across your infrastructure</li>
+          <PageHelp title="How to Use the Dashboard" description="Quick guide to reading your energy data.">
+            <h3 className="font-semibold text-foreground">📊 Manual Audits Tab</h3>
+            <p>Shows charts built from the device entries you've created on the <strong>Audit</strong> page. Use this to understand your static infrastructure — does HVAC cost more than lighting? Which lab is the most power-hungry?</p>
+            <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+              <li><strong>Consumption by Location:</strong> Click a bar to see which specific lab is your largest consumer.</li>
+              <li><strong>Device Class Pie:</strong> Is "Servers" taking up half the pie? That's your biggest optimization lever.</li>
             </ul>
-            <p className="mt-2">
-              <strong>Use this analysis to:</strong> Identify which labs need equipment upgrades, determine if HVAC or lighting consumes more than computing loads, and justify budget allocations for energy-efficient replacements.
-            </p>
 
-            <h3 className="font-semibold text-foreground mt-4">Telemetry Analysis Tab</h3>
-            <p>
-              This tab interprets your dynamic log data from real workstations, providing time-based and machine-specific insights:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Idle Waste Detection:</strong> Identifies machines consuming significant power when CPU utilization is below 5%, typically indicating computers left running overnight, over weekends, or during holidays. Each idle device shows estimated annual waste in kWh and cost.</li>
-              <li><strong>Peak Power Usage:</strong> Ranks workstations by maximum recorded wattage, helping identify power-hungry configurations that might benefit from hardware tuning or replacement.</li>
-              <li><strong>Time-Series Power Curve:</strong> Interactive chart showing aggregate fleet power consumption over hours, days, or weeks. Look for patterns like consistent overnight loads (indicating machines not sleeping) or unexpected weekend spikes.</li>
-              <li><strong>CPU Utilization Patterns:</strong> Correlates CPU load with power consumption to validate power models and detect anomalous behavior.</li>
+            <h3 className="font-semibold text-foreground mt-4">📡 Telemetry Tab</h3>
+            <p>This tab only populates after you've uploaded a <code>.csv</code> file on the <strong>Audit → Upload Telemetry</strong> tab. It shows real behavior from actual machines.</p>
+            <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+              <li><strong>Idle Waste:</strong> Any machine spending most of its time below 5% CPU is wasting power. These are sleep policy targets.</li>
+              <li><strong>Peak Power:</strong> Machines at the top of this list are candidates for the Simulation tool — compare them against replacements.</li>
+              <li><strong>Time-Series Curve:</strong> A flat line overnight means machines aren't sleeping. A spike on weekends might mean unauthorized use.</li>
             </ul>
-            <p className="mt-2">
-              <strong>Actionable insights:</strong> Use idle waste data to justify automatic sleep policies, identify which labs have poor power management practices, and calculate potential savings from behavior changes or hardware upgrades.
-            </p>
 
-            <h3 className="font-semibold text-foreground mt-4">How to Use the Dashboard</h3>
-            <ol className="list-decimal ml-6 mt-2 space-y-1">
-              <li>Start by reviewing the top-level stats cards showing total audits and telemetry data points</li>
-              <li>Switch between tabs to compare static infrastructure (audits) with dynamic behavior (telemetry)</li>
-              <li>Hover over charts for detailed breakdowns and specific values</li>
-              <li>Export insights to present to facilities management or sustainability committees</li>
-              <li>Return regularly after uploading new telemetry to track trends over time</li>
-            </ol>
-
-            <h3 className="font-semibold text-foreground mt-4">Key Metrics Explained</h3>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>kWh (Kilowatt-hours):</strong> Energy consumed over time. 1 kWh = running a 100W device for 10 hours</li>
-              <li><strong>Inferred Watts:</strong> Estimated instantaneous power draw based on CPU load and hardware specifications</li>
-              <li><strong>Idle Percentage:</strong> Proportion of time a machine operates below 5% CPU utilization</li>
-              <li><strong>Tariff Rate:</strong> Cost per kWh (default: 16.3 KSh/kWh for Kenya KPLC commercial rates)</li>
+            <h3 className="font-semibold text-foreground mt-4">💡 Tips</h3>
+            <ul className="list-disc ml-5 mt-1 space-y-1 text-sm">
+              <li>If charts are empty — go to <strong>Audit</strong> and add devices or upload telemetry data first.</li>
+              <li>The two stat cards at the top refresh automatically. If they show zero, no data has been uploaded yet.</li>
             </ul>
           </PageHelp>
         </div>

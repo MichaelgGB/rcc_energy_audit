@@ -146,144 +146,29 @@ export default function SystemWideCarbonReportPage() {
                             Aggregated environmental impact report crossing manual infrastructural audits and live telemetry streams.
                         </p>
                     </div>
-                    <PageHelp title="Carbon Report Guide" description="Computing macro-environmental footprints.">
-                        <h3 className="font-semibold text-foreground">What is the Carbon Report?</h3>
-                        <p>
-                            The System-wide Carbon Report provides a comprehensive environmental impact assessment by aggregating all energy consumption data across your infrastructure. It synthesizes manual audit data (static baseline) with real-time telemetry (dynamic workloads) to calculate total carbon dioxide emissions attributable to your computing operations.
-                        </p>
+                    <PageHelp title="How to Read the Carbon Report" description="Understanding your environmental footprint.">
+                        <h3 className="font-semibold text-foreground">🌍 What This Page Shows</h3>
+                        <p className="text-sm">This report combines all your audit and telemetry data into a single environmental picture. It answers the question: <em>"How much CO₂ is our lab infrastructure emitting per year?"</em></p>
 
-                        <h3 className="font-semibold text-foreground mt-4">Calculation Methodology</h3>
-                        <p>
-                            This report combines data from two distinct measurement layers:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Manual Audits Layer:</strong> Captures expected infrastructural load including lighting, HVAC (cooling/heating), servers, networking equipment, and peripheral devices. These are typically constant or follow predictable schedules.</li>
-                            <li><strong>Active Telemetry Layer:</strong> Measures real-time power consumption from instrumented workstations (desktops, laptops). Telemetry provides actual usage patterns including idle periods, peak loads, and variation across time-of-day and days-of-week.</li>
-                        </ul>
-                        <p className="mt-2">
-                            <strong>Carbon Calculation Formula:</strong> Total Carbon (kg CO₂) = Total Energy Consumption (kWh) × Grid Carbon Intensity Factor (kg CO₂/kWh)
-                        </p>
-                        <p className="mt-2">
-                            The system extrapolates daily consumption to annual footprints (Daily kWh × 365 days) to provide yearly projections for sustainability planning and reporting.
-                        </p>
-
-                        <h3 className="font-semibold text-foreground mt-4">Kenya Grid Carbon Intensity</h3>
-                        <p>
-                            The default carbon intensity factor is <strong>0.4 kg CO₂ per kWh</strong>, reflecting Kenya's relatively clean electricity grid composition:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Geothermal:</strong> ~47% of grid capacity (Olkaria geothermal complex, negligible emissions)</li>
-                            <li><strong>Hydroelectric:</strong> ~30% (renewable, near-zero emissions during operation)</li>
-                            <li><strong>Thermal (Diesel/Heavy Fuel):</strong> ~15% (high carbon intensity, primarily used during droughts)</li>
-                            <li><strong>Wind/Solar:</strong> ~8% and growing (zero emissions)</li>
-                        </ul>
-                        <p className="mt-2">
-                            This makes Kenya's grid significantly cleaner than global averages (~0.5-0.6 kg CO₂/kWh) but dirtier than countries with predominantly renewable/nuclear grids (France: 0.06, Norway: 0.02). The factor can be adjusted in Simulations settings if grid composition changes or for hypothetical scenarios.
-                        </p>
-
-                        <h3 className="font-semibold text-foreground mt-4">Understanding Report Sections</h3>
-
-                        <h4 className="font-semibold text-foreground mt-3">1. Summary Cards</h4>
-                        <p>
-                            Top-level metrics provide at-a-glance insights:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Total Daily Consumption:</strong> Combined kWh from all sources (audits + telemetry) per day</li>
-                            <li><strong>Annual Projection:</strong> Daily consumption scaled to yearly total for long-term planning</li>
-                            <li><strong>Annual Carbon Footprint:</strong> Total kg CO₂ emitted over a year, often converted to metric tonnes (1 tonne = 1000 kg) for reporting</li>
-                            <li><strong>Trees Required to Offset:</strong> Number of mature trees needed to absorb this CO₂ over one year (based on 21 kg CO₂/tree/year absorption rate)</li>
+                        <h3 className="font-semibold text-foreground mt-4">📊 The 4 Summary Cards</h3>
+                        <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+                            <li><strong>Total Annual Carbon:</strong> The total CO₂ your infrastructure emits each year, combining both audit and telemetry data. Shown in kg or tonnes (1 tonne = 1000 kg).</li>
+                            <li><strong>Total Annual Energy:</strong> The kWh your infrastructure consumes per year across all sources.</li>
+                            <li><strong>Trees to Offset 🌳:</strong> How many mature trees would need to grow for a full year to absorb this CO₂. Each tree absorbs ~21 kg/year. Useful for communicating impact to non-technical audiences or campus sustainability boards.</li>
+                            <li><strong>Carbon Factor:</strong> The grid efficiency factor used in calculations. Kenya's default is <strong>0.4 kg CO₂/kWh</strong> — lower than most countries due to geothermal and hydro. If your grid becomes dirtier (e.g., more diesel in drought), update this in the Simulations settings.</li>
                         </ul>
 
-                        <h4 className="font-semibold text-foreground mt-3">2. Breakdown by Location</h4>
-                        <p>
-                            Visual and tabular analysis showing carbon emissions attributed to specific physical locations:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Bar Chart:</strong> Compare locations side-by-side to identify highest-impact facilities</li>
-                            <li><strong>Use Case:</strong> Prioritize energy efficiency upgrades in locations with highest footprints, justify lab-specific interventions</li>
-                            <li><strong>Example Insights:</strong> "PHD Lab emits 3x more carbon than Undergraduate Lab despite similar square footage" → investigate cooling inefficiency or overcapacity</li>
+                        <h3 className="font-semibold text-foreground mt-4">📈 The Two Charts</h3>
+                        <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+                            <li><strong>Carbon by Location (Pie):</strong> Which labs or spaces are emitting the most. "Active Workstations (Telemetry)" is the footprint from your uploaded CSV data.</li>
+                            <li><strong>Emissions by Device Class (Bar):</strong> Is HVAC or Lighting dominating? Use this to decide where to invest first — e.g., if Servers are largest, check your Simulations page for replacement options.</li>
                         </ul>
 
-                        <h4 className="font-semibold text-foreground mt-3">3. Breakdown by Device Class</h4>
-                        <p>
-                            Categorizes emissions by equipment type to reveal infrastructure composition impacts:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Pie Chart:</strong> Proportional view of carbon contributions (e.g., "Computing: 45%, HVAC: 30%, Lighting: 15%")</li>
-                            <li><strong>Use Case:</strong> Guide strategic investments (e.g., if HVAC dominates, investigate cooling optimization; if Lighting is significant, prioritize LED conversions)</li>
-                            <li><strong>Benchmarking:</strong> Compare your device class distribution against industry standards to identify anomalies</li>
-                        </ul>
-
-                        <h4 className="font-semibold text-foreground mt-3">4. Telemetry-Specific Insights</h4>
-                        <p>
-                            Separate card for real-time workstation data:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Active Computers Count:</strong> Unique machines with recent telemetry uploads</li>
-                            <li><strong>Estimated Daily kWh:</strong> Extrapolated consumption from telemetry sampling</li>
-                            <li><strong>Estimated Annual Carbon:</strong> Environmental impact of just the workstation fleet</li>
-                        </ul>
-                        <p className="mt-2">
-                            Note: Telemetry typically covers only instrumented machines (desktops/laptops with monitoring agents). Infrastructure devices (lighting, servers, HVAC) are captured via manual audits.
-                        </p>
-
-                        <h3 className="font-semibold text-foreground mt-4">Equivalent Metrics Explained</h3>
-                        <p>
-                            The report translates technical kWh and CO₂ figures into relatable real-world equivalents:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Trees to Offset:</strong> Based on mature tree CO₂ absorption (~21 kg/year). Example: 500 tonnes CO₂ requires 23,810 trees growing for one year to neutralize.</li>
-                            <li><strong>Water Consumption:</strong> Thermal power generation uses ~3 liters of water per kWh for cooling. Reducing energy demand conserves this water resource.</li>
-                            <li><strong>Coal Equivalent:</strong> 1 kWh ≈ 0.4 kg of coal combustion. Shows fossil fuel avoided by efficiency improvements.</li>
-                            <li><strong>Vehicle Emissions:</strong> (If implemented) Average car emits ~120 g CO₂/km. Your annual footprint equivalent to X km driven.</li>
-                        </ul>
-                        <p className="mt-2">
-                            These translations are valuable for communicating with non-technical audiences (administration, students, community) and for public sustainability commitments.
-                        </p>
-
-                        <h3 className="font-semibold text-foreground mt-4">Use Cases for Carbon Reports</h3>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>ESG Reporting:</strong> Environmental, Social, Governance disclosures for institutional reporting (e.g., University sustainability initiatives, accreditation requirements)</li>
-                            <li><strong>Carbon Offsetting:</strong> Calculate how many carbon credits to purchase or trees to plant to achieve carbon neutrality</li>
-                            <li><strong>Grant Applications:</strong> Demonstrate environmental impact of proposed projects (e.g., "This upgrade will reduce emissions by 50 tonnes CO₂ annually")</li>
-                            <li><strong>Public Communication:</strong> Share achievements in sustainability reports, websites, social media ("UON reduced carbon footprint by 30% in 2026")</li>
-                            <li><strong>Regulatory Compliance:</strong> Some jurisdictions require carbon footprint reporting for public institutions</li>
-                            <li><strong>Benchmarking:</strong> Compare your carbon intensity (kg CO₂ per student or per square meter) against peer institutions</li>
-                            <li><strong>Internal Accountability:</strong> Set departmental carbon budgets and track compliance</li>
-                        </ul>
-
-                        <h3 className="font-semibold text-foreground mt-4">Improving Report Accuracy</h3>
-                        <p>
-                            To maximize data quality and report usefulness:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Complete Audits:</strong> Ensure all labs, offices, and support spaces are audited with accurate device inventories</li>
-                            <li><strong>Representative Telemetry:</strong> Deploy monitoring on at least 20-30% of machines per lab to capture usage diversity</li>
-                            <li><strong>Regular Updates:</strong> Re-audit annually and upload new telemetry monthly to reflect infrastructure changes</li>
-                            <li><strong>Calibrate Carbon Factor:</strong> Adjust grid carbon intensity seasonally if your region experiences significant generation mix changes (e.g., more diesel during droughts)</li>
-                            <li><strong>Include All Sources:</strong> Don't forget non-computing loads like data center cooling, cafeteria equipment, research instruments</li>
-                        </ul>
-
-                        <h3 className="font-semibold text-foreground mt-4">Interpreting Trends</h3>
-                        <p>
-                            Compare carbon reports over time to track progress:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li><strong>Decreasing Footprint:</strong> Success! Investigate which interventions (recommendations, hardware upgrades) drove reductions and scale them</li>
-                            <li><strong>Stable Footprint:</strong> Consider whether this is acceptable given organizational growth, or if more aggressive action is needed</li>
-                            <li><strong>Increasing Footprint:</strong> Identify causes (new labs, increased usage, degraded efficiency) and develop mitigation plans</li>
-                            <li><strong>Seasonal Variations:</strong> Expect higher carbon during exam periods (intensive machine use) and January/August (cooling demands during hot months)</li>
-                        </ul>
-
-                        <h3 className="font-semibold text-foreground mt-4">Exporting and Sharing</h3>
-                        <p>
-                            While the platform displays visualizations, consider these sharing strategies:
-                        </p>
-                        <ul className="list-disc ml-6 mt-2 space-y-1">
-                            <li>Take screenshots of charts and tables for presentations and reports</li>
-                            <li>Copy summary statistics for inclusion in sustainability dashboards</li>
-                            <li>Present location and device class breakdowns to facilities committees to justify targeted investments</li>
-                            <li>Share "trees needed" metric with student organizations to organize campus tree-planting drives matching the carbon footprint</li>
+                        <h3 className="font-semibold text-foreground mt-4">💡 Tips</h3>
+                        <ul className="list-disc ml-5 mt-1 space-y-1 text-sm">
+                            <li>If the charts are empty, add audits on the <strong>Audit</strong> page first.</li>
+                            <li>Use the "Trees to Offset" number for grant applications or student sustainability campaigns — it's easier to communicate than raw CO₂ kilograms.</li>
+                            <li>After implementing changes from the <strong>Recommendations</strong> page, come back here to see if the carbon numbers have dropped.</li>
                         </ul>
                     </PageHelp>
                 </div>

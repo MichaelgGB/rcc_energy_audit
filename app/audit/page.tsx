@@ -24,54 +24,29 @@ export default function AuditPage() {
             <h1 className="text-3xl font-bold">Energy Audits</h1>
             <p className="text-muted mt-2">Manage manual audits and upload telemetry data</p>
           </div>
-          <PageHelp title="Audit & Telemetry Guide" description="How to input and manage your baseline and dynamic data.">
-            <h3 className="font-semibold text-foreground">What is an Energy Audit?</h3>
-            <p>
-              An energy audit is a comprehensive assessment of energy consumption in your computing infrastructure. This page serves as the data entry point for all energy measurements, either through manual input or automated telemetry uploads.
-            </p>
-
-            <h3 className="font-semibold text-foreground mt-4">Manual Audits</h3>
-            <p>
-              Manual audits allow you to create a static baseline for a specific location (e.g., "C4D Lab"). You enter the specifications of the hardware located there:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><strong>Device Name:</strong> Identifier for the equipment (e.g., "Dell Desktop" or "LED Panel")</li>
-              <li><strong>Device Class:</strong> Category like Lighting, Computing, HVAC, Servers, or Networking</li>
-              <li><strong>Power Rating (Watts):</strong> The power consumption of the device during operation</li>
-              <li><strong>Usage Hours/Day:</strong> Expected daily runtime of the device</li>
-              <li><strong>Units:</strong> Number of identical devices in this category</li>
+          <PageHelp title="How to Use the Audit Page" description="Enter device data or automate it with routines.">
+            <h3 className="font-semibold text-foreground">✍️ Manual Audit Tab</h3>
+            <p className="text-sm">Use this to record a snapshot of devices in a specific lab. Think of it as a one-time inventory scan.</p>
+            <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+              <li><strong>Device Class:</strong> Choose the type of device. The form fields will change to match its parameters (e.g. selecting "Workstations" shows Idle/Active/Peak watts).</li>
+              <li><strong>Effective Power (W):</strong> This is automatically calculated from the detailed inputs — you don't need to enter it manually.</li>
+              <li><strong>Quantity:</strong> How many of this exact device are in the room?</li>
+              <li><strong>Description:</strong> Optional label like "Dell OptiPlex" or "60W LED Panel" to identify the device later.</li>
             </ul>
-            <p className="mt-2">
-              The system automatically calculates the <strong>Daily kWh footprint</strong> using the formula: <code>(Power Rating × Usage Hours × Units) ÷ 1000</code>. This data feeds into dashboard analytics, carbon reports, and comparison simulations.
-            </p>
+            <p className="mt-2 text-sm">Hit <strong>Add Device</strong> to add multiple device types in one audit. When done, click <strong>Save Audit</strong>.</p>
 
-            <h3 className="font-semibold text-foreground mt-4">Telemetry Upload</h3>
-            <p>
-              Telemetry represents real-time dynamic workstation metrics collected from actual running systems. Unlike manual audits which are estimates, telemetry provides precise measurements.
-            </p>
-            <p className="mt-2">
-              <strong>How to collect telemetry:</strong> Use the Python script (<code>telemetry-collector.py</code>) or shell script (<code>telemetry-collector.sh</code>) provided in the <code>/scripts</code> directory to automatically gather system metrics from your lab computers.
-            </p>
-            <p className="mt-2">
-              <strong>CSV Format:</strong> Your upload file should contain these fields:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li><code>timestamp_utc</code>: ISO timestamp of the measurement</li>
-              <li><code>computer_name</code>: Hostname or identifier of the machine</li>
-              <li><code>cpu_percent</code>: CPU utilization percentage (0-100)</li>
-              <li><code>memory_percent</code>: RAM usage percentage</li>
-              <li><code>inferred_watts</code>: Calculated power consumption based on hardware specs and CPU load</li>
+            <h3 className="font-semibold text-foreground mt-4">🔁 Create Routine Tab</h3>
+            <p className="text-sm">A Routine is a one-time setup that will <em>auto-generate</em> audit entries for you (via the <code>routine-logger.js</code> script). Best for fixed assets like lights or servers.</p>
+            <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+              <li><strong>Frequency:</strong> Choose Daily, Hourly, or Weekly — this determines how often the routine creates a new log entry when the script runs.</li>
+              <li><strong>Use case:</strong> "Lights are on 8 hours every day" — set it once here and never log it manually again.</li>
             </ul>
-            <p className="mt-2">
-              Once uploaded, telemetry data powers the Predictions, Recommendations, and advanced Dashboard analytics, enabling idle waste detection, anomaly identification, and optimization strategies.
-            </p>
 
-            <h3 className="font-semibold text-foreground mt-4">Best Practices</h3>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li>Start with manual audits to establish a baseline inventory</li>
-              <li>Deploy telemetry collection on representative machines from each lab</li>
-              <li>Upload telemetry data regularly (weekly or monthly) for trend analysis</li>
-              <li>Review the audit list to track historical changes and location-specific consumption</li>
+            <h3 className="font-semibold text-foreground mt-4">📤 Upload Telemetry Tab</h3>
+            <p className="text-sm">Upload a <code>.csv</code> file exported from the telemetry collector scripts in the <code>/scripts</code> folder. This enables Predictions and advanced Dashboard analytics.</p>
+            <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+              <li>Required columns: <code>timestamp_utc</code>, <code>computer_name</code>, <code>cpu_percent</code>, <code>inferred_watts</code></li>
+              <li>You can upload multiple times — data is appended, not replaced.</li>
             </ul>
           </PageHelp>
         </div>

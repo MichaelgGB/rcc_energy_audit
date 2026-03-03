@@ -144,118 +144,31 @@ export default function PredictionsDashboard() {
             Predictive analytics and real-time anomaly detection for energy consumption
           </p>
         </div>
-        <PageHelp title="Predictions Guide" description="Understanding forecasts and anomaly detection.">
-          <h3 className="font-semibold text-foreground">What are Predictions?</h3>
-          <p>
-            The Predictions page applies machine learning and statistical analysis to your historical telemetry data to forecast future energy consumption, identify waste patterns, and detect operational anomalies. It answers the question: "What will happen if we continue current practices?"
-          </p>
+        <PageHelp title="How to Use Predictions" description="Understand what these forecasts mean and where to act.">
+          <h3 className="font-semibold text-foreground">🔮 What This Page Tells You</h3>
+          <p className="text-sm">This page takes your uploaded telemetry data and answers: <em>"If nothing changes, what will our energy bill and carbon footprint look like next month and next year?"</em> It also detects machines behaving abnormally right now.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Note: This page requires telemetry data — upload a CSV on the Audit page first.</p>
 
-          <h3 className="font-semibold text-foreground mt-4">Data Requirements</h3>
-          <p>
-            Predictions require sufficient telemetry data to establish baseline patterns. Upload at least:
-          </p>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li><strong>7 days of continuous data</strong> for initial trend analysis</li>
-            <li><strong>30+ days of data</strong> for accurate monthly forecasts and weekly pattern detection</li>
-            <li><strong>Multiple machines</strong> from the same lab/location for comparative analysis</li>
-          </ul>
-          <p className="mt-2">
-            The system automatically analyzes uploaded telemetry to generate predictions without requiring manual configuration.
-          </p>
-
-          <h3 className="font-semibold text-foreground mt-4">Key Sections Explained</h3>
-
-          <h4 className="font-semibold text-foreground mt-3">1. Current State Overview</h4>
-          <p>
-            Provides a real-time snapshot based on the most recent telemetry data points:
-          </p>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li><strong>Total Active Devices:</strong> Number of unique machines with recent telemetry</li>
-            <li><strong>Average Power Draw:</strong> Mean instantaneous power consumption across the fleet</li>
-            <li><strong>Total Daily kWh:</strong> Aggregate energy consumption extrapolated from recent patterns</li>
-            <li><strong>Monthly Cost Estimate:</strong> Current spending rate based on configured tariff (default: 16.3 KSh/kWh)</li>
+          <h3 className="font-semibold text-foreground mt-4">📦 Reading Each Section</h3>
+          <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+            <li><strong>Current State:</strong> A snapshot of your fleet right now — how many machines are monitored, average watts drawn, today's kWh, and estimated monthly cost.</li>
+            <li><strong>Idle Impact (Purple):</strong> Machines spending most of their time below 5% CPU while still consuming power. These are your easiest wins — enabling sleep mode on even one lab can save thousands of KSh/year.</li>
+            <li><strong>If No Action (Red/Orange):</strong> The "do nothing" scenario. Use these numbers to justify budget requests or urgency to management.</li>
+            <li><strong>With Recommendations (Green):</strong> What happens if you implement the suggested changes from the <strong>Recommendations</strong> page. The difference between this and "No Action" is your savings opportunity.</li>
+            <li><strong>Anomalies:</strong> Machines behaving unexpectedly — drawing 3× their usual power, active at 2 AM, etc. Critical anomalies warrant immediate investigation (possible hardware fault or unauthorized use).</li>
           </ul>
 
-          <h4 className="font-semibold text-foreground mt-3">2. Idle Impact Prediction</h4>
-          <p>
-            Identifies machines exhibiting significant idle power consumption (CPU utilization consistently below 5%) and calculates the financial and environmental cost of this waste:
-          </p>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li><strong>Idle Device List:</strong> Specific machines wasting energy, ranked by severity</li>
-            <li><strong>Daily Waste per Device:</strong> kWh consumed during idle periods each day</li>
-            <li><strong>Annual Waste Projection:</strong> Extrapolated yearly cost (KSh) and carbon emissions (kg CO₂) if idle behavior continues</li>
-            <li><strong>Total Fleet Idle Waste:</strong> Aggregate waste across all identified devices</li>
-          </ul>
-          <p className="mt-2">
-            <strong>Common causes of idle waste:</strong> Machines left on overnight, disabled sleep/hibernation settings, screen savers preventing power management, users forgetting to log out.
-          </p>
-
-          <h4 className="font-semibold text-foreground mt-3">3. No Action Forecasts</h4>
-          <p>
-            Projects future costs and consumption if current trends continue unchanged:
-          </p>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li><strong>Next Month Forecast:</strong> Estimated kWh, cost (KSh), and CO₂ emissions for the upcoming 30 days</li>
-            <li><strong>Next Year Forecast:</strong> Annual projections accounting for seasonal variations and growth trends</li>
-            <li><strong>With Recommendations Scenario:</strong> Potential outcomes if you implement the system's automated recommendations (from the Recommendations page), showing estimated savings in kWh, costs, and carbon reductions</li>
-          </ul>
-          <p className="mt-2">
-            Use these forecasts to budget for energy expenses, set sustainability goals, and justify intervention investments to stakeholders.
-          </p>
-
-          <h4 className="font-semibold text-foreground mt-3">4. Detected Anomalies</h4>
-          <p>
-            The anomaly detection engine continuously monitors telemetry streams for unusual behavior:
-          </p>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li><strong>High Power Events:</strong> Machines suddenly drawing significantly more watts than their historical baseline (could indicate hardware failure, malware, or unauthorized workloads like cryptocurrency mining)</li>
-            <li><strong>Unusual Patterns:</strong> Devices active during unexpected hours (e.g., lab machines running at 3 AM when the building should be empty)</li>
-            <li><strong>Idle Waste Alerts:</strong> Machines consistently idle but never entering sleep mode despite policy enforcement</li>
-            <li><strong>Power Spikes:</strong> Brief but extreme power consumption events that might indicate electrical issues</li>
-          </ul>
-          <p className="mt-2">
-            Each anomaly includes:
-          </p>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li><strong>Severity:</strong> Critical (immediate action required), Warning (investigate soon), or Info (monitor for trends)</li>
-            <li><strong>Device Name:</strong> Specific machine exhibiting the anomaly</li>
-            <li><strong>Deviation Percentage:</strong> How far the behavior deviates from expected norms</li>
-            <li><strong>Timestamp:</strong> When the anomaly was first detected</li>
-            <li><strong>Expected vs Actual Values:</strong> Comparison showing the magnitude of abnormality</li>
+          <h3 className="font-semibold text-foreground mt-4">⚡ Anomaly Severity Guide</h3>
+          <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+            <li><strong>🔴 Critical:</strong> Act now. High deviation from expected behavior — may indicate hardware failure or security issue.</li>
+            <li><strong>🟠 Warning:</strong> Investigate within a few days. Unusual pattern that may be waste or misconfiguration.</li>
+            <li><strong>🔵 Info:</strong> Keep an eye on it. Something is slightly off but not urgent.</li>
           </ul>
 
-          <h3 className="font-semibold text-foreground mt-4">How Predictions Work</h3>
-          <p>
-            The prediction engine uses statistical modeling techniques:
-          </p>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li><strong>Time-Series Analysis:</strong> Identifies daily, weekly, and seasonal patterns in consumption</li>
-            <li><strong>Linear Regression:</strong> Projects trends forward based on historical growth rates</li>
-            <li><strong>Idle Detection Algorithm:</strong> Classifies machines as idle when CPU usage remains below 5% for &gt;85% of measured time</li>
-            <li><strong>Anomaly Scoring:</strong> Uses standard deviation thresholds (typically 2-3 sigma) to flag outliers</li>
-            <li><strong>Confidence Intervals:</strong> Predictions include uncertainty ranges based on data quality and variability</li>
-          </ul>
-
-          <h3 className="font-semibold text-foreground mt-4">Actionable Insights</h3>
-          <p>
-            Use predictions to:
-          </p>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li><strong>Budget Planning:</strong> Accurate monthly and annual cost forecasts for financial planning</li>
-            <li><strong>Policy Enforcement:</strong> Identify labs/departments not following power management policies</li>
-            <li><strong>Capacity Planning:</strong> Detect growing power demands before they strain electrical infrastructure</li>
-            <li><strong>Behavior Change:</strong> Share idle waste reports with users to encourage responsible computing practices</li>
-            <li><strong>Security Monitoring:</strong> Investigate anomalies that might indicate unauthorized access or compromised systems</li>
-            <li><strong>ROI Tracking:</strong> Compare "with recommendations" forecasts to actual consumption after implementing changes</li>
-          </ul>
-
-          <h3 className="font-semibold text-foreground mt-4">Best Practices</h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Review predictions weekly to identify new idle devices or emerging anomalies</li>
-            <li>Investigate critical anomalies within 24 hours to prevent damage or excessive waste</li>
-            <li>Compare monthly forecasts with actual bills to validate prediction accuracy</li>
-            <li>Export idle device lists to share with lab managers for corrective action</li>
-            <li>Track forecast improvements after implementing recommendations to measure initiative success</li>
+          <h3 className="font-semibold text-foreground mt-4">💡 Tips</h3>
+          <ul className="list-disc ml-5 mt-1 space-y-1 text-sm">
+            <li>Come back here after implementing sleep policies — the "Idle Impact" section should shrink.</li>
+            <li>The "Deviation" field on anomaly cards shows by how many watts the machine exceeded its expected range. A 50W+ deviation is usually significant.</li>
           </ul>
         </PageHelp>
       </div>
